@@ -44,7 +44,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hungerBarOuter.style.gap = '2px';
     hungerBarOuter.style.background = 'transparent';
     hungerBarOuter.style.border = '2px solid #fff';
-    hungerBarOuter.style.borderRadius = '6px';
+    hungerBarOuter.style.borderRadius = '0'; // Make it unrounded
     hungerBarOuter.style.width = '70px';
     hungerBarOuter.style.height = '12px';
     hungerBarOuter.style.overflow = 'hidden';
@@ -234,7 +234,7 @@ function createGameArea() {
     let vx = 0;
     let vy = 0;
     let onGround = false;
-    let jumpPower = -15;
+    // Use window.currentJumpPower for jump height
     let gravity = 0.5;
     let moveSpeed = 4;
     let scrollY = 0;
@@ -345,7 +345,9 @@ function createGameArea() {
 
         // Jump
         if (jumpPressed && onGround) {
-            vy = jumpPower;
+            // Use the currentJumpPower global variable for jump height
+            // If not set, default to -15
+            vy = typeof window.currentJumpPower === "number" ? window.currentJumpPower : -15;
             onGround = false;
             jumpPressed = false;
         }
@@ -489,6 +491,10 @@ function showScreen(message) {
         let hungerSegments = hud._hungerSegments;
         let segmentsLeft = 10;
 
+        // Set jump powers for normal and much lower jumps
+        let jumpPowerNormal = -15;
+        let jumpPowerLow = -10; // much lower jump
+
         // Listen for jump events and update hunger bar segments
         document.addEventListener('keydown', function(e) {
             if (
@@ -530,29 +536,37 @@ function showScreen(message) {
             }
         }, 5000);
 
-        // Patch the game loop to update the player's onGround attribute
+        // Patch the game loop to update the player's onGround attribute and jump power
         setTimeout(() => {
-            function patchPlayerOnGround() {
+            function patchPlayerOnGroundAndJumpPower() {
                 const player = document.getElementById('player');
-                if (!player) return;
-                const plats = Array.from(document.querySelectorAll('.platform'));
-                let playerRect = player.getBoundingClientRect();
-                let onGroundNow = false;
-                for (let plat of plats) {
-                    let platRect = plat.getBoundingClientRect();
-                    if (
-                        playerRect.bottom <= platRect.top + 2 &&
-                        playerRect.bottom + 2 >= platRect.top &&
-                        playerRect.right > platRect.left + 4 &&
-                        playerRect.left < platRect.right - 4
-                    ) {
-                        onGroundNow = true;
+                if (player) {
+                    // Patch onGround attribute
+                    const plats = Array.from(document.querySelectorAll('.platform'));
+                    let playerRect = player.getBoundingClientRect();
+                    let onGroundNow = false;
+                    for (let plat of plats) {
+                        let platRect = plat.getBoundingClientRect();
+                        if (
+                            playerRect.bottom <= platRect.top + 2 &&
+                            playerRect.bottom + 2 >= platRect.top &&
+                            playerRect.right > platRect.left + 4 &&
+                            playerRect.left < platRect.right - 4
+                        ) {
+                            onGroundNow = true;
+                        }
                     }
+                    player.setAttribute('data-on-ground', onGroundNow ? 'true' : 'false');
                 }
-                player.setAttribute('data-on-ground', onGroundNow ? 'true' : 'false');
-                requestAnimationFrame(patchPlayerOnGround);
+                // Set jump power based on hunger segments left
+                if (segmentsLeft <= 3) {
+                    window.currentJumpPower = jumpPowerLow;
+                } else {
+                    window.currentJumpPower = jumpPowerNormal;
+                }
+                requestAnimationFrame(patchPlayerOnGroundAndJumpPower);
             }
-            patchPlayerOnGround();
+            patchPlayerOnGroundAndJumpPower();
         }, 500);
 
         // Timer countdown
@@ -728,3 +742,6 @@ buttons.forEach(btn => {
         }
     });
 });
+
+// In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }

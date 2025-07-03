@@ -284,6 +284,8 @@ body {
     overflow: hidden;
     align-items: center;
     position: relative;
+    border: 2px solid #fff;
+    border-radius: 0; /* Make the bar unrounded */
 }
 .hunger-segment {
     display: inline-block;
