@@ -209,7 +209,7 @@ function createGameArea() {
     let vx = 0;
     let vy = 0;
     let onGround = false;
-    let jumpPower = -10;
+    let jumpPower = -15;
     let gravity = 0.5;
     let moveSpeed = 4;
     let scrollY = 0;
