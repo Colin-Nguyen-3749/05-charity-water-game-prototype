@@ -9,152 +9,90 @@ const buttons = document.querySelectorAll('.menu-btn');
 function createHUD(money, hunger, food, health, timerSeconds) {
     const hud = document.createElement('div');
     hud.id = 'hud';
-    hud.className = 'd-flex justify-content-between align-items-center flex-wrap';
+    hud.className = 'hud-grid';
 
-    // --- Left section: Money + Hunger ---
-    const leftSection = document.createElement('div');
-    leftSection.className = 'd-flex flex-column align-items-start';
+    // --- Counter stacks (2x2 grid) ---
+    const countersGrid = document.createElement('div');
+    countersGrid.className = 'counters-grid';
 
-    // Money row: label, then counter (both bigger)
-    const moneyRow = document.createElement('div');
-    moneyRow.className = 'd-flex align-items-center mb-2';
+    // Money (top left)
+    const moneyStack = document.createElement('div');
+    moneyStack.className = 'counter-stack';
     const moneyLabel = document.createElement('span');
     moneyLabel.textContent = 'MONEY';
-    moneyLabel.style.fontFamily = `'Press Start 2P', monospace`;
-    moneyLabel.style.fontSize = '1.1rem';
-    moneyLabel.style.letterSpacing = '1px';
-    moneyLabel.style.marginRight = '10px';
-    moneyRow.appendChild(moneyLabel);
-    // Counter: coin icon and amount (bigger)
-    const coin = document.createElement('span');
-    coin.style.display = 'inline-block';
-    coin.style.width = '28px';
-    coin.style.height = '28px';
-    coin.style.background = '#FFC907';
-    coin.style.border = '2px solid #fff';
-    coin.style.borderRadius = '50%';
-    coin.style.marginRight = '10px';
-    coin.style.verticalAlign = 'middle';
-    coin.setAttribute('aria-label', 'Coin');
-    moneyRow.appendChild(coin);
-    const moneyText = document.createElement('span');
-    moneyText.textContent = `x ${money}`;
-    moneyText.style.fontFamily = `'Press Start 2P', monospace`;
-    moneyText.style.fontSize = '1.2rem';
-    moneyText.style.fontWeight = 'bold';
-    moneyRow.appendChild(moneyText);
-    leftSection.appendChild(moneyRow);
+    moneyLabel.className = 'counter-label';
+    moneyStack.appendChild(moneyLabel);
+    const moneyCounter = document.createElement('span');
+    moneyCounter.className = 'counter-value';
+    moneyCounter.innerHTML = `<span class="coin-icon"></span>x ${money}`;
+    moneyStack.appendChild(moneyCounter);
 
-    // Hunger row: label, then bar (both bigger)
-    const hungerRow = document.createElement('div');
-    hungerRow.className = 'd-flex align-items-center';
+    // Hunger (bottom left)
+    const hungerStack = document.createElement('div');
+    hungerStack.className = 'counter-stack';
     const hungerLabel = document.createElement('span');
     hungerLabel.textContent = 'HUNGER';
-    hungerLabel.style.fontFamily = `'Press Start 2P', monospace`;
-    hungerLabel.style.fontSize = '1.1rem';
-    hungerLabel.style.letterSpacing = '1px';
-    hungerLabel.style.marginRight = '10px';
-    hungerRow.appendChild(hungerLabel);
-    const hungerDiv = document.createElement('div');
-    hungerDiv.style.width = '110px';
-    hungerDiv.style.height = '18px';
-    hungerDiv.style.background = '#333';
-    hungerDiv.style.border = '2px solid #fff';
-    hungerDiv.style.borderRadius = '6px';
-    hungerDiv.style.overflow = 'hidden';
-    const hungerBar = document.createElement('div');
-    hungerBar.style.height = '100%';
-    hungerBar.style.width = `${hunger}%`;
-    hungerBar.style.background = '#FF902A';
-    hungerBar.style.transition = 'width 0.3s';
+    hungerLabel.className = 'counter-label';
+    hungerStack.appendChild(hungerLabel);
+    // Hunger bar
+    const hungerBarWrap = document.createElement('span');
+    hungerBarWrap.className = 'counter-value';
+    const hungerBarOuter = document.createElement('span');
+    hungerBarOuter.className = 'hunger-bar-outer';
+    const hungerBar = document.createElement('span');
+    hungerBar.className = 'hunger-bar-inner';
     hungerBar.id = 'hunger-bar';
-    hungerDiv.appendChild(hungerBar);
-    hungerRow.appendChild(hungerDiv);
-    leftSection.appendChild(hungerRow);
+    hungerBar.style.width = `${hunger}%`;
+    hungerBarOuter.appendChild(hungerBar);
+    hungerBarWrap.appendChild(hungerBarOuter);
+    hungerStack.appendChild(hungerBarWrap);
 
-    // --- Center section: Food + Health ---
-    const centerSection = document.createElement('div');
-    centerSection.className = 'd-flex flex-column align-items-center';
-
-    // Food row: label, then counter (both bigger)
-    const foodRow = document.createElement('div');
-    foodRow.className = 'd-flex align-items-center mb-2';
+    // Food (top right)
+    const foodStack = document.createElement('div');
+    foodStack.className = 'counter-stack';
     const foodLabel = document.createElement('span');
     foodLabel.textContent = 'FOOD';
-    foodLabel.style.fontFamily = `'Press Start 2P', monospace`;
-    foodLabel.style.fontSize = '1.1rem';
-    foodLabel.style.letterSpacing = '1px';
-    foodLabel.style.marginRight = '10px';
-    foodRow.appendChild(foodLabel);
-    const foodIcon = document.createElement('span');
-    foodIcon.style.display = 'inline-block';
-    foodIcon.style.width = '28px';
-    foodIcon.style.height = '28px';
-    foodIcon.style.background = '#4FCB53';
-    foodIcon.style.border = '2px solid #fff';
-    foodIcon.style.borderRadius = '4px';
-    foodIcon.style.marginRight = '10px';
-    foodIcon.setAttribute('aria-label', 'Food');
-    foodRow.appendChild(foodIcon);
-    const foodText = document.createElement('span');
-    foodText.textContent = `x ${food}`;
-    foodText.style.fontFamily = `'Press Start 2P', monospace`;
-    foodText.style.fontSize = '1.2rem';
-    foodText.style.fontWeight = 'bold';
-    foodRow.appendChild(foodText);
-    centerSection.appendChild(foodRow);
+    foodLabel.className = 'counter-label';
+    foodStack.appendChild(foodLabel);
+    const foodCounter = document.createElement('span');
+    foodCounter.className = 'counter-value';
+    foodCounter.innerHTML = `<span class="food-icon"></span>x ${food}`;
+    foodStack.appendChild(foodCounter);
 
-    // Health row: label, then counter (both bigger)
-    const healthRow = document.createElement('div');
-    healthRow.className = 'd-flex align-items-center';
+    // Health (bottom right)
+    const healthStack = document.createElement('div');
+    healthStack.className = 'counter-stack';
     const healthLabel = document.createElement('span');
     healthLabel.textContent = 'HEALTH';
-    healthLabel.style.fontFamily = `'Press Start 2P', monospace`;
-    healthLabel.style.fontSize = '1.1rem';
-    healthLabel.style.letterSpacing = '1px';
-    healthLabel.style.marginRight = '10px';
-    healthRow.appendChild(healthLabel);
-    const heart = document.createElement('span');
-    heart.textContent = '❤';
-    heart.style.color = '#F5402C';
-    heart.style.fontSize = '1.5rem';
-    heart.style.marginRight = '10px';
-    heart.setAttribute('aria-label', 'Health');
-    healthRow.appendChild(heart);
-    const healthText = document.createElement('span');
-    healthText.textContent = `x ${health}`;
-    healthText.style.fontFamily = `'Press Start 2P', monospace`;
-    healthText.style.fontSize = '1.2rem';
-    healthText.style.fontWeight = 'bold';
-    healthRow.appendChild(healthText);
-    centerSection.appendChild(healthRow);
+    healthLabel.className = 'counter-label';
+    healthStack.appendChild(healthLabel);
+    const healthCounter = document.createElement('span');
+    healthCounter.className = 'counter-value';
+    healthCounter.innerHTML = `<span class="heart-icon">❤</span>x ${health}`;
+    healthStack.appendChild(healthCounter);
 
-    // --- Right section: Timer ---
-    const rightSection = document.createElement('div');
-    rightSection.className = 'd-flex flex-column align-items-end';
+    // Add stacks to grid
+    countersGrid.appendChild(moneyStack);
+    countersGrid.appendChild(foodStack);
+    countersGrid.appendChild(hungerStack);
+    countersGrid.appendChild(healthStack);
 
-    // Timer row: label, then timer (both bigger)
-    const timerRow = document.createElement('div');
-    timerRow.className = 'd-flex align-items-center';
+    // --- Timer section ---
+    const timerSection = document.createElement('div');
+    timerSection.className = 'timer-section';
     const timerLabel = document.createElement('span');
     timerLabel.textContent = 'TIME';
-    timerLabel.style.fontFamily = `'Press Start 2P', monospace`;
-    timerLabel.style.fontSize = '1.1rem';
-    timerLabel.style.letterSpacing = '1px';
-    timerLabel.style.marginRight = '10px';
-    timerRow.appendChild(timerLabel);
-    const timerDiv = document.createElement('div');
+    timerLabel.className = 'counter-label';
+    timerSection.appendChild(timerLabel);
+    const timerDiv = document.createElement('span');
     timerDiv.id = 'timer';
-    timerDiv.style.fontSize = '1.3rem';
-    timerDiv.style.fontWeight = 'bold';
-    timerDiv.style.color = '#2E9DF7';
+    timerDiv.className = 'counter-value';
     timerDiv.textContent = formatTime(timerSeconds);
-    timerRow.appendChild(timerDiv);
-    rightSection.appendChild(timerRow);
+    timerSection.appendChild(timerDiv);
 
-    hud.appendChild(leftSection);
-    hud.appendChild(centerSection);
-    hud.appendChild(rightSection);
+    // Add grid and timer to HUD
+    hud.appendChild(countersGrid);
+    hud.appendChild(timerSection);
 
     return hud;
 }

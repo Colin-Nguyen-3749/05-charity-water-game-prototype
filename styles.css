@@ -172,6 +172,190 @@ body {
     line-height: 1.2;
 }
 
+/* HUD grid for 2x2 counters and timer */
+#hud.hud-grid {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px 8px 10px 8px;
+    background: #111;
+    border: 2px solid #fff;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    margin-top: 24px;
+    margin-bottom: 0;
+    font-family: 'Press Start 2P', monospace;
+    box-sizing: border-box;
+}
+
+/* 2x2 grid for counters */
+.counters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0 24px;
+    align-items: center;
+    justify-items: start;
+    flex: 2;
+}
+
+/* Each counter stack */
+.counter-stack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 6px 0;
+}
+
+/* Counter label and value styling */
+.counter-label {
+    font-size: 0.9rem;
+    margin-right: 7px;
+    font-family: 'Press Start 2P', monospace;
+    letter-spacing: 1px;
+    color: #fff;
+    min-width: 54px;
+    text-align: right;
+}
+
+.counter-value {
+    font-size: 1.05rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Timer section */
+.timer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 110px;
+    margin-left: 24px;
+}
+.timer-section .counter-label {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    margin-right: 0;
+}
+.timer-section .counter-value {
+    font-size: 1.1rem;
+    color: #2E9DF7;
+    font-weight: bold;
+}
+
+/* Icons */
+.coin-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: #FFC907;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    margin-right: 7px;
+}
+.food-icon {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: #4FCB53;
+    border: 2px solid #fff;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+.heart-icon {
+    color: #F5402C;
+    font-size: 1.15rem;
+    margin-right: 7px;
+    font-family: inherit;
+}
+
+/* Hunger bar */
+.hunger-bar-outer {
+    display: inline-block;
+    width: 70px;
+    height: 12px;
+    background: #333;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 0;
+}
+.hunger-bar-inner {
+    display: inline-block;
+    height: 100%;
+    background: #FF902A;
+    transition: width 0.3s;
+}
+
+/* Responsive for mobile: stack counters, shrink everything, timer below */
+@media (max-width: 700px) {
+    #hud.hud-grid {
+        flex-direction: column;
+        align-items: center;
+        padding: 2vw 2vw 2vw 2vw;
+        font-size: 0.7rem;
+        max-width: 100vw;
+        width: 100vw;
+        border-radius: 10px;
+        margin: 0 auto 8px auto;
+        box-sizing: border-box;
+    }
+    .counters-grid {
+        gap: 0 4px;
+        margin-bottom: 6px;
+    }
+    .counter-label {
+        font-size: 0.7rem;
+        min-width: 32px;
+        margin-right: 4px;
+    }
+    .counter-value {
+        font-size: 0.8rem;
+    }
+    .coin-icon, .food-icon {
+        width: 13px;
+        height: 13px;
+        margin-right: 4px;
+    }
+    .heart-icon {
+        font-size: 0.8rem;
+        margin-right: 4px;
+    }
+    .hunger-bar-outer {
+        width: 36px;
+        height: 7px;
+    }
+    .timer-section {
+        align-items: center;
+        margin-left: 0;
+        min-width: 0;
+        margin-top: 6px;
+    }
+    .timer-section .counter-label {
+        font-size: 0.7rem;
+    }
+    .timer-section .counter-value {
+        font-size: 0.9rem;
+    }
+    #game-area {
+        max-width: 98vw;
+        width: 98vw;
+        height: 140px;
+        border: none;
+        border-radius: 0;
+        margin: 0 auto 0 auto;
+        background: #181818;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+}
+
 /* Game area styles */
 #game-area {
     background: #181818;
