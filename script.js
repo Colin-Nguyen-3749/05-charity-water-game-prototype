@@ -106,24 +106,29 @@ function formatTime(seconds) {
 
 // Function to create the game area with random platforms and player
 function createGameArea() {
+    // Detect if the screen is mobile-sized
+    const isMobile = window.innerWidth <= 700;
+
+    // Set area size based on device
+    const areaWidth = isMobile ? Math.min(window.innerWidth * 0.9, 320) : 600;
+    const areaHeight = isMobile ? 100 : 400;
+
     // Create the game area container
     const gameArea = document.createElement('div');
     gameArea.id = 'game-area';
     gameArea.style.position = 'relative';
-    gameArea.style.width = '100vw';
-    gameArea.style.maxWidth = '600px';
-    gameArea.style.height = '400px';
-    gameArea.style.margin = '32px auto 0 auto';
+    gameArea.style.width = `${areaWidth}px`;
+    gameArea.style.maxWidth = isMobile ? `${areaWidth}px` : '600px';
+    gameArea.style.height = `${areaHeight}px`;
+    gameArea.style.margin = isMobile ? '0 auto 0 auto' : '32px auto 0 auto';
     gameArea.style.background = '#181818';
     gameArea.style.border = '2px solid #fff';
-    gameArea.style.borderRadius = '12px';
+    gameArea.style.borderRadius = isMobile ? '8px' : '12px';
     gameArea.style.overflow = 'hidden';
     gameArea.style.display = 'flex';
     gameArea.style.alignItems = 'flex-end';
 
     // Game variables
-    const areaWidth = 600;
-    const areaHeight = 400;
     const platformCount = 8;
     const platformMinGapY = 40;
     const platformMaxGapY = 70;
@@ -136,9 +141,10 @@ function createGameArea() {
 
     // Helper to generate a platform at a given y
     function createPlatform(y) {
-        // Random width and x position
+        // Random width and x position, always inside the game area
         const width = platformMinWidth + Math.floor(Math.random() * (platformMaxWidth - platformMinWidth));
-        const x = Math.floor(Math.random() * (areaWidth - width - 20)) + 10;
+        const maxX = areaWidth - width - 10;
+        const x = Math.floor(Math.random() * (maxX > 0 ? maxX : 1)) + 5;
         // Alternate colors
         const color = Math.random() < 0.5 ? '#BF6C46' : '#77A8BB';
 
@@ -260,6 +266,12 @@ function createGameArea() {
         // Prevent player from going out of bounds horizontally
         if (px < 0) px = 0;
         if (px > areaWidth - 28) px = areaWidth - 28;
+
+        // Prevent player from jumping above the top of the game area
+        if (py < 0) {
+            py = 0;
+            vy = 0;
+        }
 
         // Platform collision (simple AABB)
         onGround = false;
