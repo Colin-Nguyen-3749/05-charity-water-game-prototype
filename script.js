@@ -110,8 +110,9 @@ function createGameArea() {
     const isMobile = window.innerWidth <= 700;
 
     // Set area size based on device
+    // For mobile, make the game area much taller (about 70% of the viewport height, max 420px)
     const areaWidth = isMobile ? Math.min(window.innerWidth * 0.9, 320) : 600;
-    const areaHeight = isMobile ? 100 : 400;
+    const areaHeight = isMobile ? Math.min(window.innerHeight * 0.7, 420) : 400;
 
     // Create the game area container
     const gameArea = document.createElement('div');
@@ -242,6 +243,66 @@ function createGameArea() {
         if (e.code === 'ArrowRight' || e.code === 'KeyD') rightPressed = false;
     });
 
+    // --- On-screen controls for mobile ---
+    let controls = null;
+    if (isMobile) {
+        // Create a container for the on-screen buttons (will be added outside gameArea)
+        controls = document.createElement('div');
+        controls.id = 'mobile-controls';
+        controls.style.display = 'flex';
+        controls.style.justifyContent = 'center';
+        controls.style.gap = '24px';
+        controls.style.margin = '18px 0 0 0';
+        controls.style.width = `${areaWidth}px`;
+
+        // Helper to make a pixelated button
+        function makeBtn(label) {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.style.background = '#111';
+            btn.style.color = '#fff';
+            btn.style.border = '2px solid #fff';
+            btn.style.fontFamily = "'Press Start 2P', monospace";
+            btn.style.fontSize = '2rem';
+            btn.style.padding = '22px 32px';
+            btn.style.borderRadius = '10px';
+            btn.style.margin = '0 4px';
+            btn.style.cursor = 'pointer';
+            btn.style.outline = 'none';
+            btn.style.boxShadow = '0 2px #222';
+            btn.style.pointerEvents = 'auto'; // enable click/touch
+            btn.style.userSelect = 'none';
+            btn.style.touchAction = 'none';
+            return btn;
+        }
+
+        // Left, Right, Jump buttons
+        const leftBtn = makeBtn('←');
+        const rightBtn = makeBtn('→');
+        const jumpBtn = makeBtn('⤒');
+
+        // Add event listeners for touch and mouse
+        leftBtn.addEventListener('touchstart', e => { e.preventDefault(); leftPressed = true; });
+        leftBtn.addEventListener('touchend', e => { e.preventDefault(); leftPressed = false; });
+        leftBtn.addEventListener('mousedown', e => { e.preventDefault(); leftPressed = true; });
+        leftBtn.addEventListener('mouseup', e => { e.preventDefault(); leftPressed = false; });
+        leftBtn.addEventListener('mouseleave', e => { leftPressed = false; });
+
+        rightBtn.addEventListener('touchstart', e => { e.preventDefault(); rightPressed = true; });
+        rightBtn.addEventListener('touchend', e => { e.preventDefault(); rightPressed = false; });
+        rightBtn.addEventListener('mousedown', e => { e.preventDefault(); rightPressed = true; });
+        rightBtn.addEventListener('mouseup', e => { e.preventDefault(); rightPressed = false; });
+        rightBtn.addEventListener('mouseleave', e => { rightPressed = false; });
+
+        jumpBtn.addEventListener('touchstart', e => { e.preventDefault(); if (onGround) jumpPressed = true; });
+        jumpBtn.addEventListener('mousedown', e => { e.preventDefault(); if (onGround) jumpPressed = true; });
+
+        // Arrange buttons: left, jump, right
+        controls.appendChild(leftBtn);
+        controls.appendChild(jumpBtn);
+        controls.appendChild(rightBtn);
+    }
+
     // Game loop
     function gameLoop() {
         // Move left/right
@@ -331,7 +392,19 @@ function createGameArea() {
     // Start the game loop
     requestAnimationFrame(gameLoop);
 
-    return gameArea;
+    // Return both gameArea and controls if mobile, else just gameArea
+    if (isMobile) {
+        // Wrap in a container to keep layout simple for students
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        wrapper.appendChild(gameArea);
+        wrapper.appendChild(controls);
+        return wrapper;
+    } else {
+        return gameArea;
+    }
 }
 
 // Function to show a new screen with a message or the game
@@ -369,8 +442,8 @@ function showScreen(message) {
         screen.appendChild(hud);
 
         // Add the game area with platforms
-        const gameArea = createGameArea();
-        screen.appendChild(gameArea);
+        const gameAreaOrWrapper = createGameArea();
+        screen.appendChild(gameAreaOrWrapper);
 
         // Timer countdown
         let timerInterval = setInterval(() => {
