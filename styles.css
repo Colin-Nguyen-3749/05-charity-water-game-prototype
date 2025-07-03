@@ -123,3 +123,58 @@ body {
     max-width: 90vw;
     font-size: 1rem;
 }
+
+/* HUD styles */
+#hud {
+    font-family: 'Press Start 2P', monospace;
+    background: #111;
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 12px;
+    margin-top: 24px;
+    margin-bottom: 0;
+    padding: 16px 12px 12px 12px;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+/* Game area styles */
+#game-area {
+    background: #181818;
+    border: 2px solid #fff;
+    border-radius: 12px;
+    width: 100vw;
+    max-width: 600px;
+    height: 400px;
+    margin: 32px auto 0 auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Platform styles */
+.platform {
+    border: 2px solid #222;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 #222;
+}
+
+/* Responsive adjustments for HUD and game area */
+@media (max-width: 700px) {
+    #hud, #game-area {
+        max-width: 98vw;
+    }
+    #hud {
+        font-size: 0.7rem;
+        padding: 10px 2vw 8px 2vw;
+    }
+    #game-area {
+        height: 220px;
+    }
+}
