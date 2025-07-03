@@ -144,16 +144,32 @@ body {
     border-radius: 12px;
     margin-top: 24px;
     margin-bottom: 0;
-    padding: 16px 12px 12px 12px;
+    padding: 10px 8px 10px 8px;
     width: 100%;
     max-width: 600px;
     box-sizing: border-box;
-    font-size: 0.8rem;
+    font-size: 1rem;
+    gap: 0;
     /* Use flex for layout */
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+}
+
+#hud .d-flex.align-items-center > span,
+#hud .d-flex.align-items-center > div {
+    margin-bottom: 0 !important;
+}
+
+#hud .d-flex.align-items-center {
+    margin-bottom: 2px !important;
+}
+
+#hud span,
+#hud div {
+    /* Remove extra vertical spacing */
+    line-height: 1.2;
 }
 
 /* Game area styles */
@@ -184,17 +200,17 @@ body {
         max-width: 98vw;
     }
     #hud {
-        font-size: 0.7rem;
-        padding: 10px 2vw 8px 2vw;
+        font-size: 0.9rem;
+        padding: 6px 2vw 6px 2vw;
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
+        gap: 6px;
     }
     #hud > div {
         width: 100%;
         justify-content: center !important;
         align-items: center !important;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
     #hud > div:last-child {
         margin-bottom: 0;
