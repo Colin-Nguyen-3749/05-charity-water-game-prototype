@@ -93,24 +93,6 @@ body {
     }
 }
 
-/* Make sure water drip effect doesn't overlap content on small screens */
-#water-drip-container {
-    height: 40px;
-    min-height: 24px;
-}
-
-@media (max-width: 600px) {
-    #water-drip-container {
-        height: 24px;
-    }
-    .water-drip {
-        height: 16px !important;
-        min-height: 8px;
-        width: 5px;
-        margin: 0 1px;
-    }
-}
-
 /* Ensure good color contrast for accessibility */
 body {
     background: #000;

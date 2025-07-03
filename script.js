@@ -17,6 +17,15 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     const leftSection = document.createElement('div');
     leftSection.className = 'd-flex flex-column align-items-start';
 
+    // Money label
+    const moneyLabel = document.createElement('div');
+    moneyLabel.textContent = 'MONEY';
+    moneyLabel.style.fontFamily = `'Press Start 2P', monospace`;
+    moneyLabel.style.fontSize = '0.7rem';
+    moneyLabel.style.letterSpacing = '1px';
+    moneyLabel.style.marginBottom = '2px';
+    leftSection.appendChild(moneyLabel);
+
     // Money counter
     const moneyDiv = document.createElement('div');
     moneyDiv.className = 'd-flex align-items-center mb-2';
@@ -35,7 +44,20 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     // Amount
     const moneyText = document.createElement('span');
     moneyText.textContent = `x ${money}`;
+    moneyText.style.fontFamily = `'Press Start 2P', monospace`;
+    moneyText.style.fontSize = '1rem';
     moneyDiv.appendChild(moneyText);
+
+    leftSection.appendChild(moneyDiv);
+
+    // Hunger label
+    const hungerLabel = document.createElement('div');
+    hungerLabel.textContent = 'HUNGER';
+    hungerLabel.style.fontFamily = `'Press Start 2P', monospace`;
+    hungerLabel.style.fontSize = '0.7rem';
+    hungerLabel.style.letterSpacing = '1px';
+    hungerLabel.style.marginBottom = '2px';
+    leftSection.appendChild(hungerLabel);
 
     // Hunger bar (below money)
     const hungerDiv = document.createElement('div');
@@ -55,12 +77,20 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hungerBar.id = 'hunger-bar';
     hungerDiv.appendChild(hungerBar);
 
-    leftSection.appendChild(moneyDiv);
     leftSection.appendChild(hungerDiv);
 
     // --- Center section: Food + Health ---
     const centerSection = document.createElement('div');
     centerSection.className = 'd-flex flex-column align-items-center';
+
+    // Food label
+    const foodLabel = document.createElement('div');
+    foodLabel.textContent = 'FOOD';
+    foodLabel.style.fontFamily = `'Press Start 2P', monospace`;
+    foodLabel.style.fontSize = '0.7rem';
+    foodLabel.style.letterSpacing = '1px';
+    foodLabel.style.marginBottom = '2px';
+    centerSection.appendChild(foodLabel);
 
     // Food counter
     const foodDiv = document.createElement('div');
@@ -79,7 +109,20 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     // Amount
     const foodText = document.createElement('span');
     foodText.textContent = `x ${food}`;
+    foodText.style.fontFamily = `'Press Start 2P', monospace`;
+    foodText.style.fontSize = '1rem';
     foodDiv.appendChild(foodText);
+
+    centerSection.appendChild(foodDiv);
+
+    // Health label
+    const healthLabel = document.createElement('div');
+    healthLabel.textContent = 'HEALTH';
+    healthLabel.style.fontFamily = `'Press Start 2P', monospace`;
+    healthLabel.style.fontSize = '0.7rem';
+    healthLabel.style.letterSpacing = '1px';
+    healthLabel.style.marginBottom = '2px';
+    centerSection.appendChild(healthLabel);
 
     // Health counter (below food)
     const healthDiv = document.createElement('div');
@@ -95,14 +138,24 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     // Amount
     const healthText = document.createElement('span');
     healthText.textContent = `x ${health}`;
+    healthText.style.fontFamily = `'Press Start 2P', monospace`;
+    healthText.style.fontSize = '1rem';
     healthDiv.appendChild(healthText);
 
-    centerSection.appendChild(foodDiv);
     centerSection.appendChild(healthDiv);
 
     // --- Right section: Timer ---
     const rightSection = document.createElement('div');
     rightSection.className = 'd-flex flex-column align-items-end';
+
+    // Timer label
+    const timerLabel = document.createElement('div');
+    timerLabel.textContent = 'TIME';
+    timerLabel.style.fontFamily = `'Press Start 2P', monospace`;
+    timerLabel.style.fontSize = '0.7rem';
+    timerLabel.style.letterSpacing = '1px';
+    timerLabel.style.marginBottom = '2px';
+    rightSection.appendChild(timerLabel);
 
     // Timer display
     const timerDiv = document.createElement('div');
