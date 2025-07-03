@@ -124,6 +124,35 @@ body {
     font-size: 1rem;
 }
 
+/* Bootstrap-like flex utility classes for layout */
+.d-flex {
+    display: flex !important;
+}
+.flex-column {
+    flex-direction: column !important;
+}
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+.align-items-center {
+    align-items: center !important;
+}
+.align-items-start {
+    align-items: flex-start !important;
+}
+.align-items-end {
+    align-items: flex-end !important;
+}
+.justify-content-between {
+    justify-content: space-between !important;
+}
+.justify-content-center {
+    justify-content: center !important;
+}
+.mb-2 {
+    margin-bottom: 8px !important;
+}
+
 /* HUD styles */
 #hud {
     font-family: 'Press Start 2P', monospace;
@@ -137,10 +166,12 @@ body {
     width: 100%;
     max-width: 600px;
     box-sizing: border-box;
+    font-size: 0.8rem;
+    /* Use flex for layout */
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
 }
 
 /* Game area styles */
@@ -173,6 +204,18 @@ body {
     #hud {
         font-size: 0.7rem;
         padding: 10px 2vw 8px 2vw;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    #hud > div {
+        width: 100%;
+        justify-content: center !important;
+        align-items: center !important;
+        margin-bottom: 8px;
+    }
+    #hud > div:last-child {
+        margin-bottom: 0;
     }
     #game-area {
         height: 220px;

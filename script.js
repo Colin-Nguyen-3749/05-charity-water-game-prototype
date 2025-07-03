@@ -6,29 +6,20 @@ const menu = document.getElementById('menu');
 const buttons = document.querySelectorAll('.menu-btn');
 
 // Function to create the game HUD (top info bar)
-function createHUD(money, hunger, food, health) {
+function createHUD(money, hunger, food, health, timerSeconds) {
     // Create the HUD container
     const hud = document.createElement('div');
     hud.id = 'hud';
-    hud.style.display = 'flex';
-    hud.style.alignItems = 'center';
-    hud.style.justifyContent = 'space-between';
-    hud.style.width = '100%';
-    hud.style.maxWidth = '600px';
-    hud.style.margin = '0 auto';
-    hud.style.background = '#111';
-    hud.style.border = '2px solid #fff';
-    hud.style.borderRadius = '12px';
-    hud.style.padding = '16px 12px 12px 12px';
-    hud.style.boxSizing = 'border-box';
-    hud.style.fontFamily = `'Press Start 2P', monospace`;
-    hud.style.fontSize = '0.8rem';
-    hud.style.marginTop = '24px';
+    // Use Bootstrap-like flex classes for layout
+    hud.className = 'd-flex justify-content-between align-items-center flex-wrap';
+
+    // --- Left section: Money + Hunger ---
+    const leftSection = document.createElement('div');
+    leftSection.className = 'd-flex flex-column align-items-start';
 
     // Money counter
     const moneyDiv = document.createElement('div');
-    moneyDiv.style.display = 'flex';
-    moneyDiv.style.alignItems = 'center';
+    moneyDiv.className = 'd-flex align-items-center mb-2';
     // Coin icon (simple yellow circle)
     const coin = document.createElement('span');
     coin.style.display = 'inline-block';
@@ -48,7 +39,7 @@ function createHUD(money, hunger, food, health) {
 
     // Hunger bar (below money)
     const hungerDiv = document.createElement('div');
-    hungerDiv.style.marginTop = '8px';
+    hungerDiv.style.marginTop = '4px';
     hungerDiv.style.width = '70px';
     hungerDiv.style.height = '12px';
     hungerDiv.style.background = '#333';
@@ -64,10 +55,16 @@ function createHUD(money, hunger, food, health) {
     hungerBar.id = 'hunger-bar';
     hungerDiv.appendChild(hungerBar);
 
+    leftSection.appendChild(moneyDiv);
+    leftSection.appendChild(hungerDiv);
+
+    // --- Center section: Food + Health ---
+    const centerSection = document.createElement('div');
+    centerSection.className = 'd-flex flex-column align-items-center';
+
     // Food counter
     const foodDiv = document.createElement('div');
-    foodDiv.style.display = 'flex';
-    foodDiv.style.alignItems = 'center';
+    foodDiv.className = 'd-flex align-items-center mb-2';
     // Food icon (simple green square)
     const foodIcon = document.createElement('span');
     foodIcon.style.display = 'inline-block';
@@ -86,9 +83,7 @@ function createHUD(money, hunger, food, health) {
 
     // Health counter (below food)
     const healthDiv = document.createElement('div');
-    healthDiv.style.marginTop = '8px';
-    healthDiv.style.display = 'flex';
-    healthDiv.style.alignItems = 'center';
+    healthDiv.className = 'd-flex align-items-center';
     // Heart icon (simple red heart shape using emoji for simplicity)
     const heart = document.createElement('span');
     heart.textContent = '❤';
@@ -102,21 +97,35 @@ function createHUD(money, hunger, food, health) {
     healthText.textContent = `x ${health}`;
     healthDiv.appendChild(healthText);
 
-    // Left section (money + hunger)
-    const leftSection = document.createElement('div');
-    leftSection.appendChild(moneyDiv);
-    leftSection.appendChild(hungerDiv);
+    centerSection.appendChild(foodDiv);
+    centerSection.appendChild(healthDiv);
 
-    // Right section (food + health)
+    // --- Right section: Timer ---
     const rightSection = document.createElement('div');
-    rightSection.appendChild(foodDiv);
-    rightSection.appendChild(healthDiv);
+    rightSection.className = 'd-flex flex-column align-items-end';
+
+    // Timer display
+    const timerDiv = document.createElement('div');
+    timerDiv.id = 'timer';
+    timerDiv.style.fontSize = '1rem';
+    timerDiv.style.fontWeight = 'bold';
+    timerDiv.style.color = '#2E9DF7';
+    timerDiv.textContent = formatTime(timerSeconds);
+    rightSection.appendChild(timerDiv);
 
     // Add sections to HUD
     hud.appendChild(leftSection);
+    hud.appendChild(centerSection);
     hud.appendChild(rightSection);
 
     return hud;
+}
+
+// Helper to format seconds as MM:SS
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
 // Function to create the game area with random platforms and player
@@ -222,11 +231,31 @@ function createGameArea() {
 
     // Listen for keydown and keyup
     document.addEventListener('keydown', function(e) {
+        // Prevent default scrolling for space and arrow keys
+        if (
+            e.code === 'Space' ||
+            e.code === 'ArrowUp' ||
+            e.code === 'ArrowDown' ||
+            e.code === 'ArrowLeft' ||
+            e.code === 'ArrowRight'
+        ) {
+            e.preventDefault();
+        }
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') leftPressed = true;
         if (e.code === 'ArrowRight' || e.code === 'KeyD') rightPressed = true;
         if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') && onGround) jumpPressed = true;
     });
     document.addEventListener('keyup', function(e) {
+        // Prevent default scrolling for space and arrow keys
+        if (
+            e.code === 'Space' ||
+            e.code === 'ArrowUp' ||
+            e.code === 'ArrowDown' ||
+            e.code === 'ArrowLeft' ||
+            e.code === 'ArrowRight'
+        ) {
+            e.preventDefault();
+        }
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') leftPressed = false;
         if (e.code === 'ArrowRight' || e.code === 'KeyD') rightPressed = false;
     });
@@ -346,12 +375,26 @@ function showScreen(message) {
         screen.setAttribute('aria-label', 'Game Screen');
 
         // Add HUD at the top (example values)
-        const hud = createHUD(3, 80, 2, 5);
+        const startTime = 180; // 3 minutes in seconds
+        let timeLeft = startTime;
+        const hud = createHUD(3, 80, 2, 5, timeLeft);
         screen.appendChild(hud);
 
         // Add the game area with platforms
         const gameArea = createGameArea();
         screen.appendChild(gameArea);
+
+        // Timer countdown
+        let timerInterval = setInterval(() => {
+            timeLeft--;
+            const timerDiv = document.getElementById('timer');
+            if (timerDiv) timerDiv.textContent = formatTime(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                // Show game over message
+                alert('Time is up!');
+            }
+        }, 1000);
 
         // Add a back button to return to menu
         const backBtn = document.createElement('button');
@@ -359,6 +402,7 @@ function showScreen(message) {
         backBtn.className = 'menu-btn';
         backBtn.style.marginTop = '32px';
         backBtn.onclick = function() {
+            clearInterval(timerInterval);
             screen.remove();
             menu.style.display = 'flex';
             const title = document.getElementById('main-title');
