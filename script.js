@@ -119,7 +119,7 @@ function createHUD(money, hunger, food, health) {
     return hud;
 }
 
-// Function to create the game area with random platforms
+// Function to create the game area with random platforms and player
 function createGameArea() {
     // Create the game area container
     const gameArea = document.createElement('div');
@@ -136,30 +136,26 @@ function createGameArea() {
     gameArea.style.display = 'flex';
     gameArea.style.alignItems = 'flex-end';
 
-    // Generate random platforms
-    const platformCount = 7;
-    let lastX = 30;
-    let lastY = 350;
-    for (let i = 0; i < platformCount; i++) {
-        // Random width and height for platform
-        const width = 80 + Math.floor(Math.random() * 60);
-        const height = 16;
-        // Random horizontal and vertical gap
-        const gapX = 40 + Math.floor(Math.random() * 60);
-        const gapY = -40 + Math.floor(Math.random() * 80);
+    // Game variables
+    const areaWidth = 600;
+    const areaHeight = 400;
+    const platformCount = 8;
+    const platformMinGapY = 40;
+    const platformMaxGapY = 70;
+    const platformMinWidth = 80;
+    const platformMaxWidth = 120;
+    const platformHeight = 16;
 
-        // Calculate new position
-        let x = lastX + gapX;
-        let y = lastY + gapY;
-        // Clamp y to stay in bounds
-        if (y > 370) y = 370;
-        if (y < 40) y = 40;
+    // Store platforms as objects for collision
+    let platforms = [];
 
-        // Randomly pick color
-        let color = '#fff';
-        const rand = Math.random();
-        if (rand < 0.3) color = '#BF6C46';
-        else if (rand < 0.6) color = '#77A8BB';
+    // Helper to generate a platform at a given y
+    function createPlatform(y) {
+        // Random width and x position
+        const width = platformMinWidth + Math.floor(Math.random() * (platformMaxWidth - platformMinWidth));
+        const x = Math.floor(Math.random() * (areaWidth - width - 20)) + 10;
+        // Alternate colors
+        const color = Math.random() < 0.5 ? '#BF6C46' : '#77A8BB';
 
         // Create platform div
         const platform = document.createElement('div');
@@ -168,19 +164,155 @@ function createGameArea() {
         platform.style.left = `${x}px`;
         platform.style.top = `${y}px`;
         platform.style.width = `${width}px`;
-        platform.style.height = `${height}px`;
+        platform.style.height = `${platformHeight}px`;
         platform.style.background = color;
         platform.style.border = '2px solid #222';
         platform.style.borderRadius = '6px';
         platform.style.boxShadow = '0 2px 0 #222';
         platform.setAttribute('aria-label', 'Platform');
 
+        // Add to DOM and array
         gameArea.appendChild(platform);
-
-        // Update lastX and lastY for next platform
-        lastX = x;
-        lastY = y;
+        platforms.push({el: platform, x, y, width, height: platformHeight});
     }
+
+    // Generate initial platforms, spaced vertically so they don't touch
+    let y = areaHeight - 40;
+    for (let i = 0; i < platformCount; i++) {
+        createPlatform(y);
+        y -= platformMinGapY + Math.floor(Math.random() * (platformMaxGapY - platformMinGapY));
+    }
+
+    // Add the player avatar
+    const player = document.createElement('div');
+    player.id = 'player';
+    player.style.position = 'absolute';
+    player.style.width = '28px';
+    player.style.height = '28px';
+    player.style.left = `${platforms[0].x + platforms[0].width / 2 - 14}px`;
+    player.style.top = `${platforms[0].y - 28}px`;
+    player.style.background = '#FFC907';
+    player.style.border = '2px solid #fff';
+    player.style.borderRadius = '6px';
+    player.style.boxShadow = '0 2px 0 #222';
+    player.style.display = 'flex';
+    player.style.alignItems = 'center';
+    player.style.justifyContent = 'center';
+    player.style.fontSize = '1.2rem';
+    player.style.zIndex = '2';
+    player.textContent = '🙂'; // Simple avatar
+    gameArea.appendChild(player);
+
+    // Player physics variables
+    let px = platforms[0].x + platforms[0].width / 2 - 14;
+    let py = platforms[0].y - 28;
+    let vx = 0;
+    let vy = 0;
+    let onGround = false;
+    let jumpPower = -10;
+    let gravity = 0.5;
+    let moveSpeed = 4;
+    let scrollY = 0;
+    let maxPlayerY = py;
+
+    // Keyboard controls
+    let leftPressed = false;
+    let rightPressed = false;
+    let jumpPressed = false;
+
+    // Listen for keydown and keyup
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') leftPressed = true;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') rightPressed = true;
+        if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') && onGround) jumpPressed = true;
+    });
+    document.addEventListener('keyup', function(e) {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') leftPressed = false;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') rightPressed = false;
+    });
+
+    // Game loop
+    function gameLoop() {
+        // Move left/right
+        if (leftPressed) vx = -moveSpeed;
+        else if (rightPressed) vx = moveSpeed;
+        else vx = 0;
+
+        // Jump
+        if (jumpPressed && onGround) {
+            vy = jumpPower;
+            onGround = false;
+            jumpPressed = false;
+        }
+
+        // Apply gravity
+        vy += gravity;
+
+        // Update player position
+        px += vx;
+        py += vy;
+
+        // Prevent player from going out of bounds horizontally
+        if (px < 0) px = 0;
+        if (px > areaWidth - 28) px = areaWidth - 28;
+
+        // Platform collision (simple AABB)
+        onGround = false;
+        for (let plat of platforms) {
+            // Check if player is falling and feet are above platform
+            if (
+                py + 28 <= plat.y + vy && // was above platform last frame
+                py + 28 + vy >= plat.y && // will be at or below platform this frame
+                px + 24 > plat.x && px + 4 < plat.x + plat.width // horizontally overlapping
+            ) {
+                // Land on platform
+                py = plat.y - 28;
+                vy = 0;
+                onGround = true;
+            }
+        }
+
+        // If player falls below screen, reset to top platform
+        if (py > areaHeight) {
+            // Reset to highest platform
+            const topPlat = platforms.reduce((a, b) => (a.y < b.y ? a : b));
+            px = topPlat.x + topPlat.width / 2 - 14;
+            py = topPlat.y - 28;
+            vy = 0;
+            scrollY = 0;
+        }
+
+        // Scroll platforms down as player moves up
+        if (py < areaHeight / 2) {
+            const diff = areaHeight / 2 - py;
+            py = areaHeight / 2;
+            scrollY += diff;
+            // Move all platforms down
+            for (let plat of platforms) {
+                plat.y += diff;
+                plat.el.style.top = `${plat.y}px`;
+            }
+        }
+
+        // Remove platforms that go off the bottom and add new ones at the top
+        platforms = platforms.filter(plat => plat.y < areaHeight);
+        while (platforms.length < platformCount) {
+            // Find highest platform
+            const highest = platforms.reduce((a, b) => (a.y < b.y ? a : b), {y: areaHeight});
+            // New y above highest
+            const newY = highest.y - (platformMinGapY + Math.floor(Math.random() * (platformMaxGapY - platformMinGapY)));
+            createPlatform(newY);
+        }
+
+        // Update player DOM position
+        player.style.left = `${px}px`;
+        player.style.top = `${py}px`;
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game loop
+    requestAnimationFrame(gameLoop);
 
     return gameArea;
 }
