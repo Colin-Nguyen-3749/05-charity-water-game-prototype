@@ -8,11 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="menu">
-        <h1 id="main-title">Running Water</h1>
-        <button class="menu-btn">Start</button>
-        <button class="menu-btn">How to Play</button>
-        <button class="menu-btn">About Charity: Water</button>
+    <!-- Water drip effect container, aria-hidden for accessibility -->
+    <div id="water-drip-container" aria-hidden="true"></div>
+    <div id="menu" role="main" aria-label="Main Menu">
+        <h1 id="main-title" tabindex="0">Running Water</h1>
+        <button class="menu-btn" aria-label="Start the game">Start</button>
+        <button class="menu-btn" aria-label="How to Play instructions">How to Play</button>
+        <button class="menu-btn" aria-label="About Charity: Water">About Charity: Water</button>
     </div>
     <script src="script.js"></script>
 </body>

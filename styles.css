@@ -53,9 +53,73 @@ body {
     border-radius: 8px;
     transition: background 0.2s, color 0.2s;
     width: 300px;
+    min-height: 48px;
+    outline: none;
 }
 
 .menu-btn:hover {
     background: #fff;
     color: #000;
+}
+
+.menu-btn:focus {
+    outline: 3px solid #FFC907; /* Charity: water yellow for focus */
+    outline-offset: 2px;
+}
+
+/* Make sure the menu and screens are responsive */
+#menu,
+#screen {
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 24px 8px;
+}
+
+/* Responsive font size for the title */
+#main-title {
+    font-size: 2rem;
+}
+
+@media (max-width: 600px) {
+    #main-title {
+        font-size: 1.1rem;
+        margin-bottom: 24px;
+    }
+    .menu-btn {
+        font-size: 0.8rem;
+        padding: 12px 8px;
+        width: 90vw;
+        max-width: 320px;
+    }
+}
+
+/* Make sure water drip effect doesn't overlap content on small screens */
+#water-drip-container {
+    height: 40px;
+    min-height: 24px;
+}
+
+@media (max-width: 600px) {
+    #water-drip-container {
+        height: 24px;
+    }
+    .water-drip {
+        height: 16px !important;
+        min-height: 8px;
+        width: 5px;
+        margin: 0 1px;
+    }
+}
+
+/* Ensure good color contrast for accessibility */
+body {
+    background: #000;
+    color: #fff;
+}
+
+/* Make sure the back button on screens is also responsive */
+#screen .menu-btn {
+    width: 220px;
+    max-width: 90vw;
+    font-size: 1rem;
 }

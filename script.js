@@ -27,9 +27,16 @@ function showScreen(message) {
     screen.style.color = '#fff';
     screen.style.fontFamily = `'Press Start 2P', monospace`;
     screen.style.fontSize = '1.2rem';
+    screen.setAttribute('role', 'region');
+    screen.setAttribute('tabindex', '-1');
+    screen.setAttribute('aria-label', 'Game Screen');
 
     // Add the message
-    screen.textContent = message;
+    const msg = document.createElement('div');
+    msg.textContent = message;
+    msg.style.textAlign = 'center';
+    msg.style.maxWidth = '90vw';
+    screen.appendChild(msg);
 
     // Add a back button for beginners to return to menu
     const backBtn = document.createElement('button');
@@ -39,11 +46,20 @@ function showScreen(message) {
     backBtn.onclick = function() {
         screen.remove();
         menu.style.display = 'flex';
+        // Move focus back to the main title for accessibility
+        const title = document.getElementById('main-title');
+        if (title) {
+            title.focus();
+        }
     };
+    backBtn.setAttribute('aria-label', 'Back to Main Menu');
     screen.appendChild(backBtn);
 
     // Add the new screen to the body
     document.body.appendChild(screen);
+
+    // Move focus to the new screen for accessibility
+    screen.focus();
 }
 
 // Add click event listeners to each button
@@ -59,3 +75,12 @@ buttons[2].onclick = function() {
     // About Charity: Water button
     showScreen('Charity: Water is a non-profit bringing clean water to people in need.');
 };
+
+// Add keyboard accessibility: allow Enter/Space to activate buttons
+buttons.forEach(btn => {
+    btn.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            btn.click();
+        }
+    });
+});
