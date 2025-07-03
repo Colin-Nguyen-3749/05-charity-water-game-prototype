@@ -34,16 +34,38 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hungerLabel.textContent = 'HUNGER';
     hungerLabel.className = 'counter-label';
     hungerStack.appendChild(hungerLabel);
-    // Hunger bar
+
+    // Hunger bar: 10 segments, each segment is a small white rectangle
     const hungerBarWrap = document.createElement('span');
     hungerBarWrap.className = 'counter-value';
     const hungerBarOuter = document.createElement('span');
     hungerBarOuter.className = 'hunger-bar-outer';
-    const hungerBar = document.createElement('span');
-    hungerBar.className = 'hunger-bar-inner';
-    hungerBar.id = 'hunger-bar';
-    hungerBar.style.width = `${hunger}%`;
-    hungerBarOuter.appendChild(hungerBar);
+    hungerBarOuter.style.display = 'flex';
+    hungerBarOuter.style.gap = '2px';
+    hungerBarOuter.style.background = 'transparent';
+    hungerBarOuter.style.border = '2px solid #fff';
+    hungerBarOuter.style.borderRadius = '6px';
+    hungerBarOuter.style.width = '70px';
+    hungerBarOuter.style.height = '12px';
+    hungerBarOuter.style.overflow = 'hidden';
+    hungerBarOuter.style.alignItems = 'center';
+    hungerBarOuter.style.position = 'relative';
+
+    // Create 10 segments
+    const hungerSegments = [];
+    for (let i = 0; i < 10; i++) {
+        const seg = document.createElement('span');
+        seg.className = 'hunger-segment';
+        seg.style.display = 'inline-block';
+        seg.style.height = '100%';
+        seg.style.width = '10%';
+        seg.style.background = '#fff';
+        seg.style.margin = '0';
+        seg.style.transition = 'background 0.3s';
+        hungerBarOuter.appendChild(seg);
+        hungerSegments.push(seg);
+    }
+    hungerBarOuter._segments = hungerSegments;
     hungerBarWrap.appendChild(hungerBarOuter);
     hungerStack.appendChild(hungerBarWrap);
 
@@ -95,6 +117,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hud.appendChild(countersGrid);
     hud.appendChild(timerSection);
 
+    hud._hungerSegments = hungerSegments;
     return hud;
 }
 
@@ -461,6 +484,77 @@ function showScreen(message) {
         const gameAreaOrWrapper = createGameArea();
         screen.appendChild(gameAreaOrWrapper);
 
+        // --- Hunger bar segment logic ---
+        let jumpCount = 0;
+        let hungerSegments = hud._hungerSegments;
+        let segmentsLeft = 10;
+
+        // Listen for jump events and update hunger bar segments
+        document.addEventListener('keydown', function(e) {
+            if (
+                (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW')
+            ) {
+                // Find the player element
+                const player = document.getElementById('player');
+                if (player) {
+                    if (player.getAttribute('data-on-ground') === 'true') {
+                        jumpCount++;
+                        // Every 15 jumps, hide a segment
+                        if (jumpCount % 15 === 0 && segmentsLeft > 0) {
+                            segmentsLeft--;
+                            // Visually show how many segments are left
+                            for (let i = 0; i < 10; i++) {
+                                if (i < segmentsLeft) {
+                                    hungerSegments[i].style.background = '#fff';
+                                } else {
+                                    hungerSegments[i].style.background = '#181818';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Decrease hunger bar every 5 seconds ---
+        let hungerInterval = setInterval(() => {
+            if (segmentsLeft > 0) {
+                segmentsLeft--;
+                for (let i = 0; i < 10; i++) {
+                    if (i < segmentsLeft) {
+                        hungerSegments[i].style.background = '#fff';
+                    } else {
+                        hungerSegments[i].style.background = '#181818';
+                    }
+                }
+            }
+        }, 5000);
+
+        // Patch the game loop to update the player's onGround attribute
+        setTimeout(() => {
+            function patchPlayerOnGround() {
+                const player = document.getElementById('player');
+                if (!player) return;
+                const plats = Array.from(document.querySelectorAll('.platform'));
+                let playerRect = player.getBoundingClientRect();
+                let onGroundNow = false;
+                for (let plat of plats) {
+                    let platRect = plat.getBoundingClientRect();
+                    if (
+                        playerRect.bottom <= platRect.top + 2 &&
+                        playerRect.bottom + 2 >= platRect.top &&
+                        playerRect.right > platRect.left + 4 &&
+                        playerRect.left < platRect.right - 4
+                    ) {
+                        onGroundNow = true;
+                    }
+                }
+                player.setAttribute('data-on-ground', onGroundNow ? 'true' : 'false');
+                requestAnimationFrame(patchPlayerOnGround);
+            }
+            patchPlayerOnGround();
+        }, 500);
+
         // Timer countdown
         let timerInterval = setInterval(() => {
             timeLeft--;
@@ -468,6 +562,7 @@ function showScreen(message) {
             if (timerDiv) timerDiv.textContent = formatTime(timeLeft);
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
+                clearInterval(hungerInterval);
                 // Show game over message
                 alert('Time is up!');
             }
@@ -480,6 +575,7 @@ function showScreen(message) {
         backBtn.style.marginTop = '32px';
         backBtn.onclick = function() {
             clearInterval(timerInterval);
+            clearInterval(hungerInterval);
             screen.remove();
             menu.style.display = 'flex';
             const title = document.getElementById('main-title');

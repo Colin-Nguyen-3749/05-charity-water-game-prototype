@@ -276,20 +276,22 @@ body {
 
 /* Hunger bar */
 .hunger-bar-outer {
-    display: inline-block;
+    display: flex;
+    gap: 2px;
+    background: transparent;
     width: 70px;
     height: 12px;
-    background: #333;
-    border: 2px solid #fff;
-    border-radius: 6px;
     overflow: hidden;
-    margin-right: 0;
+    align-items: center;
+    position: relative;
 }
-.hunger-bar-inner {
+.hunger-segment {
     display: inline-block;
     height: 100%;
-    background: #FF902A;
-    transition: width 0.3s;
+    width: 10%;
+    background: #fff;
+    margin: 0;
+    transition: background 0.3s;
 }
 
 /* Responsive for mobile: stack counters, shrink everything, timer below */
