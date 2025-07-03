@@ -296,7 +296,7 @@ body {
 @media (max-width: 700px) {
     #hud.hud-grid {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
         padding: 2vw 2vw 2vw 2vw;
         font-size: 0.7rem;
         max-width: 100vw;
@@ -304,28 +304,15 @@ body {
         border-radius: 10px;
         margin: 0 auto 8px auto;
         box-sizing: border-box;
-        gap: 6px;
     }
     .counters-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(4, 1fr);
-        gap: 2px 0;
+        gap: 0 4px;
         margin-bottom: 6px;
-        width: 100%;
-        justify-items: stretch;
-    }
-    .counter-stack {
-        flex-direction: row;
-        align-items: center;
-        margin: 2px 0;
-        width: 100%;
-        justify-content: flex-start;
     }
     .counter-label {
         font-size: 0.7rem;
         min-width: 32px;
         margin-right: 4px;
-        text-align: left;
     }
     .counter-value {
         font-size: 0.8rem;
@@ -344,23 +331,21 @@ body {
         height: 7px;
     }
     .timer-section {
-        align-items: flex-start;
+        align-items: center;
         margin-left: 0;
         min-width: 0;
-        margin-top: 4px;
-        width: 100%;
+        margin-top: 6px;
     }
     .timer-section .counter-label {
         font-size: 0.7rem;
-        margin-bottom: 0;
     }
     .timer-section .counter-value {
         font-size: 0.9rem;
     }
     #game-area {
         /* Shrink game area for mobile so all platforms and player are always visible */
-        max-width: 98vw;
-        width: 98vw;
+        max-width: 70vw;
+        width: 70vw;
         height: 120px;
         border: none;
         border-radius: 0;
@@ -416,15 +401,6 @@ body {
         margin-bottom: 0;
     }
     #game-area {
-        /* Make the game area smaller and narrower for mobile so everything fits */
-        height: 100px;
-        min-height: 80px;
-        max-width: 320px;
-        width: 90vw;
-        border-radius: 8px;
-        margin: 0 auto 0 auto;
-        /* Keep platforms and player visible */
-        overflow: hidden;
-        position: relative;
+        height: 220px;
     }
 }

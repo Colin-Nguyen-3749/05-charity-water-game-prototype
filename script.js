@@ -54,7 +54,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     foodLabel.textContent = 'FOOD';
     foodLabel.className = 'counter-label';
     foodStack.appendChild(foodLabel);
-    const foodCounter = document.createElement('span');
+    const foodCounter = document.createElement('div');
     foodCounter.className = 'counter-value';
     foodCounter.innerHTML = `<span class="food-icon"></span>x ${food}`;
     foodStack.appendChild(foodCounter);
@@ -62,8 +62,9 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     // Health (bottom right)
     const healthStack = document.createElement('div');
     healthStack.className = 'counter-stack';
+    // Change label from 'HEALTH' to 'MEDICINE'
     const healthLabel = document.createElement('span');
-    healthLabel.textContent = 'HEALTH';
+    healthLabel.textContent = 'MEDICINE';
     healthLabel.className = 'counter-label';
     healthStack.appendChild(healthLabel);
     const healthCounter = document.createElement('span');
@@ -147,7 +148,8 @@ function createGameArea() {
         const maxX = areaWidth - width - 10;
         const x = Math.floor(Math.random() * (maxX > 0 ? maxX : 1)) + 5;
         // Alternate colors
-        const color = Math.random() < 0.5 ? '#BF6C46' : '#77A8BB';
+        const isBrown = Math.random() < 0.5;
+        const color = isBrown ? '#BF6C46' : '#77A8BB';
 
         // Create platform div
         const platform = document.createElement('div');
@@ -162,6 +164,14 @@ function createGameArea() {
         platform.style.borderRadius = '6px';
         platform.style.boxShadow = '0 2px 0 #222';
         platform.setAttribute('aria-label', 'Platform');
+
+        // --- Double-click to turn brown platform blue ---
+        platform.addEventListener('dblclick', function() {
+            // Only change if it's brown (#BF6C46)
+            if (platform.style.background === 'rgb(191, 108, 70)' || platform.style.background === '#BF6C46') {
+                platform.style.background = '#77A8BB';
+            }
+        });
 
         // Add to DOM and array
         gameArea.appendChild(platform);
@@ -521,6 +531,78 @@ function showScreen(message) {
     document.body.appendChild(screen);
     screen.focus();
 }
+
+// --- Add a yellow jerry can above the main title on the main menu ---
+window.addEventListener('DOMContentLoaded', function() {
+    // Only add if on the menu screen and not already present
+    const menu = document.getElementById('menu');
+    if (menu && !document.getElementById('jerrycan-icon')) {
+        // Create a simple yellow jerry can using a div and CSS
+        const jerryCan = document.createElement('div');
+        jerryCan.id = 'jerrycan-icon';
+        jerryCan.style.width = '54px';
+        jerryCan.style.height = '54px';
+        jerryCan.style.marginBottom = '18px';
+        jerryCan.style.background = '#FFC907';
+        jerryCan.style.border = '4px solid #fff';
+        jerryCan.style.borderRadius = '10px';
+        jerryCan.style.position = 'relative';
+        jerryCan.style.boxShadow = '2px 4px #222';
+
+       
+
+        // Add a spout (small rectangle)
+        const spout = document.createElement('div');
+        spout.style.position = 'absolute';
+        spout.style.top = '5px';
+        spout.style.right = '7px';
+        spout.style.width = '8px';
+        spout.style.height = '16px';
+        spout.style.background = '#fff';
+        spout.style.borderRadius = '2px';
+        jerryCan.appendChild(spout);
+
+        // Center the X in the jerry can
+        const crossCenter = document.createElement('div');
+        crossCenter.style.position = 'absolute';
+        crossCenter.style.left = '50%';
+        crossCenter.style.top = '50%';
+        crossCenter.style.transform = 'translate(-50%, -50%)';
+        crossCenter.style.width = '28px';
+        crossCenter.style.height = '28px';
+
+        // Add a cross (X) for the jerry can design, centered
+        const cross1 = document.createElement('div');
+        cross1.style.position = 'absolute';
+        cross1.style.left = '0';
+        cross1.style.top = '11px';
+        cross1.style.width = '28px';
+        cross1.style.height = '6px';
+        cross1.style.background = '#fff';
+        cross1.style.transform = 'rotate(45deg)';
+        cross1.style.borderRadius = '2px';
+        crossCenter.appendChild(cross1);
+
+        const cross2 = document.createElement('div');
+        cross2.style.position = 'absolute';
+        cross2.style.left = '0';
+        cross2.style.top = '11px';
+        cross2.style.width = '28px';
+        cross2.style.height = '6px';
+        cross2.style.background = '#fff';
+        cross2.style.transform = 'rotate(-45deg)';
+        cross2.style.borderRadius = '2px';
+        crossCenter.appendChild(cross2);
+
+        jerryCan.appendChild(crossCenter);
+
+        // Insert above the main title
+        const mainTitle = document.getElementById('main-title');
+        if (mainTitle) {
+            menu.insertBefore(jerryCan, mainTitle);
+        }
+    }
+});
 
 // Add click event listeners to each button
 buttons[0].onclick = function() {
