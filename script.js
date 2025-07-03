@@ -445,10 +445,16 @@ function showScreen(message) {
         screen.setAttribute('tabindex', '-1');
         screen.setAttribute('aria-label', 'Game Screen');
 
-        // Add HUD at the top (example values)
+        // Set all counters to zero at the start of the game
+        let money = 0;
+        let food = 0;
+        let health = 0;
+        let hunger = 100; // Hunger bar starts full
+
+        // Create the HUD with starting values
         const startTime = 180; // 3 minutes in seconds
         let timeLeft = startTime;
-        const hud = createHUD(3, 80, 2, 5, timeLeft);
+        const hud = createHUD(money, hunger, food, health, timeLeft);
         screen.appendChild(hud);
 
         // Add the game area with platforms
