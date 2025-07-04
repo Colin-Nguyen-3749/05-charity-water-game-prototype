@@ -118,19 +118,39 @@ function createHUD(money, hunger, food, health, timerSeconds) {
 
     hud._hungerSegments = hungerSegments;
 
-    // --- Buy bar below the HUD ---
+    // --- Message area between HUD and buy bar ---
+    const messageBar = document.createElement('div');
+    messageBar.id = 'message-bar';
+    messageBar.style.background = '#222';
+    messageBar.style.color = '#fff';
+    messageBar.style.fontSize = '1rem';
+    messageBar.style.textAlign = 'center';
+    messageBar.style.minHeight = '28px';
+    messageBar.style.padding = '4px 0';
+    messageBar.style.width = '100%';
+    messageBar.style.maxWidth = '600px';
+    messageBar.style.margin = '0 auto';
+    messageBar.style.boxSizing = 'border-box';
+    messageBar.style.borderLeft = '2px solid #fff';
+    messageBar.style.borderRight = '2px solid #fff';
+    messageBar.style.borderTop = 'none';
+    messageBar.style.borderBottom = 'none';
+    messageBar.textContent = ''; // Start empty
+
+    // --- Buy buttons menu below the HUD ---
     const buyBar = document.createElement('div');
     buyBar.style.display = 'flex';
     buyBar.style.justifyContent = 'center';
     buyBar.style.alignItems = 'center';
     buyBar.style.gap = '18px';
-    buyBar.style.background = '#111'; // match HUD background
-    buyBar.style.border = '2px solid #fff'; // match HUD border thickness
-    buyBar.style.borderRadius = '0 0 12px 12px'; // match HUD border radius
+    buyBar.style.background = '#111';
+    buyBar.style.border = '2px solid #fff';
+    buyBar.style.borderRadius = '0 0 12px 12px';
     buyBar.style.margin = '0 auto 8px auto';
     buyBar.style.padding = '4px 0';
     buyBar.style.width = '100%';
     buyBar.style.maxWidth = '600px';
+    buyBar.style.boxSizing = 'border-box';
 
     // --- BUY FOOD BUTTON ---
     const buyFoodBtn = document.createElement('button');
@@ -144,7 +164,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     buyFoodBtn.style.minHeight = 'unset';
     buyFoodBtn.style.borderRadius = '6px';
     buyFoodBtn.style.background = '#222';
-    buyFoodBtn.style.border = '1px solid #fff';
+    buyFoodBtn.style.border = '1.5px solid #fff';
     buyFoodBtn.style.color = '#fff';
     buyFoodBtn.onclick = function() {
         const moneyValue = document.getElementById('money-value');
@@ -156,6 +176,12 @@ function createHUD(money, hunger, food, health, timerSeconds) {
             foodNum += 1;
             moneyValue.textContent = moneyNum;
             foodValue.textContent = foodNum;
+        }
+        // Show a message when food is bought
+        const msg = document.getElementById('message-bar');
+        if (moneyNum >= 3 && msg) {
+            msg.textContent = 'You bought food!';
+            setTimeout(() => { msg.textContent = ''; }, 1500);
         }
     };
 
@@ -171,7 +197,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     buyMedBtn.style.minHeight = 'unset';
     buyMedBtn.style.borderRadius = '6px';
     buyMedBtn.style.background = '#222';
-    buyMedBtn.style.border = '1px solid #fff';
+    buyMedBtn.style.border = '1.5px solid #fff';
     buyMedBtn.style.color = '#fff';
     buyMedBtn.onclick = function() {
         const moneyValue = document.getElementById('money-value');
@@ -184,16 +210,24 @@ function createHUD(money, hunger, food, health, timerSeconds) {
             moneyValue.textContent = moneyNum;
             healthValue.textContent = healthNum;
         }
+        // Show a message when medicine is bought
+        const msg = document.getElementById('message-bar');
+        if (moneyNum >= 5 && msg) {
+            msg.textContent = 'You bought medicine!';
+            setTimeout(() => { msg.textContent = ''; }, 1500);
+        }
     };
 
     buyBar.appendChild(buyFoodBtn);
     buyBar.appendChild(buyMedBtn);
 
-    // Return both the HUD and the buy bar as a container
+    // --- Container for HUD, message, and buy bar ---
     const hudContainer = document.createElement('div');
     hudContainer.appendChild(hud);
+    hudContainer.appendChild(messageBar);
     hudContainer.appendChild(buyBar);
 
+    // Attach hunger segments for use elsewhere
     hudContainer._hungerSegments = hungerSegments;
     return hudContainer;
 }
@@ -242,13 +276,14 @@ function createGameArea() {
     let platforms = [];
 
     // Helper to generate a platform at a given y
-    function createPlatform(y) {
+    function createPlatform(y, forceBlue = false) {
         // Random width and x position, always inside the game area
         const width = platformMinWidth + Math.floor(Math.random() * (platformMaxWidth - platformMinWidth));
         const maxX = areaWidth - width - 10;
         const x = Math.floor(Math.random() * (maxX > 0 ? maxX : 1)) + 5;
-        // Alternate colors
-        const isBrown = Math.random() < 0.5;
+
+        // If forceBlue is true, make the platform blue, otherwise random
+        let isBrown = !forceBlue && Math.random() < 0.5;
         const color = isBrown ? '#BF6C46' : '#77A8BB';
 
         // Create platform div
@@ -267,7 +302,6 @@ function createGameArea() {
 
         // --- Double-click to turn brown platform blue ---
         platform.addEventListener('dblclick', function() {
-            // Only change if it's brown (#BF6C46)
             if (platform.style.background === 'rgb(191, 108, 70)' || platform.style.background === '#BF6C46') {
                 platform.style.background = '#77A8BB';
             }
@@ -275,7 +309,6 @@ function createGameArea() {
 
         // --- Randomly add a coin on blue platforms ---
         let coin = null;
-        // 40% chance to add a coin if platform is blue
         if (!isBrown && Math.random() < 0.4) {
             coin = document.createElement('span');
             coin.className = 'coin-on-platform';
@@ -311,7 +344,12 @@ function createGameArea() {
     // Generate initial platforms, spaced vertically so they don't touch
     let y = areaHeight - 40;
     for (let i = 0; i < platformCount; i++) {
-        createPlatform(y);
+        // For the first platform (the one the player will spawn on), force it to be blue
+        if (i === 0) {
+            createPlatform(y, true); // Always blue for spawn
+        } else {
+            createPlatform(y);
+        }
         y -= platformMinGapY + Math.floor(Math.random() * (platformMaxGapY - platformMinGapY));
     }
 
@@ -487,12 +525,77 @@ function createGameArea() {
         // Platform collision (simple AABB)
         onGround = false;
         for (let plat of platforms) {
-            // Check if player is falling and feet are above platform
             if (
-                py + 28 <= plat.y + vy && // was above platform last frame
-                py + 28 + vy >= plat.y && // will be at or below platform this frame
-                px + 24 > plat.x && px + 4 < plat.x + plat.width // horizontally overlapping
+                py + 28 <= plat.y + vy &&
+                py + 28 + vy >= plat.y &&
+                px + 24 > plat.x && px + 4 < plat.x + plat.width
             ) {
+                // --- Check if landing on a brown platform ---
+                const platColor = plat.el.style.background;
+                if (
+                    vy > 0 &&
+                    (platColor === '#BF6C46' || platColor === 'rgb(191, 108, 70)')
+                ) {
+                    // Get counters
+                    const healthValue = document.getElementById('health-value');
+                    const moneyValue = document.getElementById('money-value');
+                    const msg = document.getElementById('message-bar');
+                    let healthNum = parseInt(healthValue.textContent, 10);
+                    let moneyNum = parseInt(moneyValue.textContent, 10);
+
+                    // Helper: move player to nearest blue platform above or below
+                    function moveToBluePlatform() {
+                        // Find all blue platforms
+                        let bluePlats = platforms.filter(p =>
+                            p.el.style.background === '#77A8BB' ||
+                            p.el.style.background === 'rgb(119, 168, 187)'
+                        );
+                        // Find the closest blue platform vertically to current py
+                        let closest = null;
+                        let minDist = Infinity;
+                        for (let bp of bluePlats) {
+                            let dist = Math.abs((py + 28) - bp.y);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                closest = bp;
+                            }
+                        }
+                        if (closest) {
+                            px = closest.x + closest.width / 2 - 14;
+                            py = closest.y - 28;
+                            vy = 0;
+                        }
+                    }
+
+                    // If player has medicine, lose 1 medicine and move to blue platform
+                    if (healthNum > 0) {
+                        healthNum -= 1;
+                        healthValue.textContent = healthNum;
+                        if (msg) {
+                            msg.textContent = 'Uh-oh, you got sick! -1 MEDICINE';
+                            setTimeout(() => { msg.textContent = ''; }, 2000);
+                        }
+                        moveToBluePlatform();
+                    }
+                    // If no medicine, but enough money, lose $5 and move to blue platform
+                    else if (moneyNum > 4) {
+                        moneyNum -= 5;
+                        moneyValue.textContent = moneyNum;
+                        if (msg) {
+                            msg.textContent = 'Uh-oh, you got sick! -5 DOLLARS';
+                            setTimeout(() => { msg.textContent = ''; }, 2000);
+                        }
+                        moveToBluePlatform();
+                    }
+                    // If no medicine and not enough money, freeze game and show message
+                    else {
+                        if (msg) {
+                            msg.textContent = "Uh-oh, you're too sick! Try again?";
+                        }
+                        // Stop the game loop by not calling requestAnimationFrame again
+                        return;
+                    }
+                }
                 // Land on platform
                 py = plat.y - 28;
                 vy = 0;
@@ -818,7 +921,6 @@ function showScreen(message) {
     screen.appendChild(backBtn);
 
     document.body.appendChild(screen);
-    screen.focus();
 }
 
 // --- Add a yellow jerry can above the main title on the main menu ---
@@ -919,7 +1021,5 @@ buttons.forEach(btn => {
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
-// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
-// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
