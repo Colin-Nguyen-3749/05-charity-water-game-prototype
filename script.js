@@ -24,7 +24,8 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     moneyStack.appendChild(moneyLabel);
     const moneyCounter = document.createElement('span');
     moneyCounter.className = 'counter-value';
-    moneyCounter.innerHTML = `<span class="coin-icon"></span>x ${money}`;
+    // Use a span for the value so we can update it easily
+    moneyCounter.innerHTML = `<span class="coin-icon"></span>x <span id="money-value">${money}</span>`;
     moneyStack.appendChild(moneyCounter);
 
     // Hunger (bottom left)
@@ -78,7 +79,8 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     foodStack.appendChild(foodLabel);
     const foodCounter = document.createElement('div');
     foodCounter.className = 'counter-value';
-    foodCounter.innerHTML = `<span class="food-icon"></span>x ${food}`;
+    // Use a span for the value so we can update it easily
+    foodCounter.innerHTML = `<span class="food-icon"></span>x <span id="food-value">${food}</span>`;
     foodStack.appendChild(foodCounter);
 
     // Health (bottom right)
@@ -91,7 +93,8 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     healthStack.appendChild(healthLabel);
     const healthCounter = document.createElement('span');
     healthCounter.className = 'counter-value';
-    healthCounter.innerHTML = `<span class="heart-icon">❤</span>x ${health}`;
+    // Use a span for the value so we can update it easily
+    healthCounter.innerHTML = `<span class="heart-icon">❤</span>x <span id="health-value">${health}</span>`;
     healthStack.appendChild(healthCounter);
 
     // Add stacks to grid
@@ -196,9 +199,39 @@ function createGameArea() {
             }
         });
 
+        // --- Randomly add a coin on blue platforms ---
+        let coin = null;
+        // 40% chance to add a coin if platform is blue
+        if (!isBrown && Math.random() < 0.4) {
+            coin = document.createElement('span');
+            coin.className = 'coin-on-platform';
+            coin.style.position = 'absolute';
+            coin.style.left = `${width / 2 - 10}px`;
+            coin.style.top = '-18px';
+            coin.style.width = '20px';
+            coin.style.height = '20px';
+            coin.style.background = '#FFC907';
+            coin.style.border = '2px solid #fff';
+            coin.style.borderRadius = '50%';
+            coin.style.display = 'flex';
+            coin.style.alignItems = 'center';
+            coin.style.justifyContent = 'center';
+            coin.style.zIndex = '3';
+            coin.innerHTML = '<span style="color:#fff;font-size:14px;">$</span>';
+            coin.setAttribute('data-collected', 'false');
+            platform.appendChild(coin);
+        }
+
         // Add to DOM and array
         gameArea.appendChild(platform);
-        platforms.push({el: platform, x, y, width, height: platformHeight});
+        platforms.push({
+            el: platform,
+            x,
+            y,
+            width,
+            height: platformHeight,
+            coin: coin
+        });
     }
 
     // Generate initial platforms, spaced vertically so they don't touch
@@ -336,7 +369,15 @@ function createGameArea() {
         controls.appendChild(rightBtn);
     }
 
-    // Game loop
+    // Track the player's items
+    let money = 0;
+    let food = 0;
+    let health = 0;
+
+    // We need to get the money counter span from the HUD each time, because the HUD is created in showScreen
+    // So we use document.getElementById to always get the current value span
+    // ...existing code...
+
     function gameLoop() {
         // Move left/right
         if (leftPressed) vx = -moveSpeed;
@@ -408,7 +449,22 @@ function createGameArea() {
         }
 
         // Remove platforms that go off the bottom and add new ones at the top
-        platforms = platforms.filter(plat => plat.y < areaHeight);
+        // Before removing a platform, also remove its coin from the DOM if it exists
+        platforms = platforms.filter(plat => {
+            if (plat.y >= areaHeight) {
+                // If the platform has a coin, remove it from the DOM
+                if (plat.coin && plat.coin.parentNode) {
+                    plat.coin.parentNode.removeChild(plat.coin);
+                }
+                // Remove the platform element from the DOM
+                if (plat.el && plat.el.parentNode) {
+                    plat.el.parentNode.removeChild(plat.el);
+                }
+                return false; // Remove this platform from the array
+            }
+            return true; // Keep this platform
+        });
+
         while (platforms.length < platformCount) {
             // Find highest platform
             const highest = platforms.reduce((a, b) => (a.y < b.y ? a : b), {y: areaHeight});
@@ -420,6 +476,32 @@ function createGameArea() {
         // Update player DOM position
         player.style.left = `${px}px`;
         player.style.top = `${py}px`;
+
+        // --- Coin collection check ---
+        for (let plat of platforms) {
+            if (plat.coin && plat.coin.getAttribute('data-collected') === 'false') {
+                // Get player and coin positions
+                const playerRect = player.getBoundingClientRect();
+                const coinRect = plat.coin.getBoundingClientRect();
+                // Check if player's feet are touching the coin (simple overlap)
+                if (
+                    playerRect.bottom >= coinRect.top &&
+                    playerRect.top < coinRect.bottom &&
+                    playerRect.left < coinRect.right &&
+                    playerRect.right > coinRect.left
+                ) {
+                    plat.coin.setAttribute('data-collected', 'true');
+                    plat.coin.style.display = 'none';
+                    // Increase money by 1
+                    money++;
+                    // Always get the money-value span from the DOM and update it
+                    const moneyValue = document.getElementById('money-value');
+                    if (moneyValue) {
+                        moneyValue.textContent = money;
+                    }
+                }
+            }
+        }
 
         requestAnimationFrame(gameLoop);
     }
@@ -483,6 +565,7 @@ function showScreen(message) {
         screen.appendChild(hud);
 
         // Add the game area with platforms
+        // Pass the HUD to createGameArea so it can update the money counter
         const gameAreaOrWrapper = createGameArea();
         screen.appendChild(gameAreaOrWrapper);
 
@@ -743,5 +826,7 @@ buttons.forEach(btn => {
     });
 });
 
+// In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }

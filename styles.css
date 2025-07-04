@@ -383,6 +383,26 @@ body {
     box-shadow: 0 2px 0 #222;
 }
 
+/* Coin on platform */
+.coin-on-platform {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #FFC907;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #fff;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 /* Responsive adjustments for HUD and game area */
 @media (max-width: 700px) {
     #hud, #game-area {
