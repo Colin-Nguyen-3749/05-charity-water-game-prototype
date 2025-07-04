@@ -565,7 +565,6 @@ function showScreen(message) {
         screen.appendChild(hud);
 
         // Add the game area with platforms
-        // Pass the HUD to createGameArea so it can update the money counter
         const gameAreaOrWrapper = createGameArea();
         screen.appendChild(gameAreaOrWrapper);
 
@@ -665,11 +664,29 @@ function showScreen(message) {
             }
         }, 1000);
 
+        // --- Reset Button ---
+        // This button will reset the game completely
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = 'Reset Game';
+        resetBtn.className = 'menu-btn';
+        resetBtn.style.marginTop = '16px';
+        resetBtn.onclick = function() {
+            // Clear intervals to stop timers
+            clearInterval(timerInterval);
+            clearInterval(hungerInterval);
+            // Remove the current game screen
+            screen.remove();
+            // Show a new game screen (fresh start)
+            showScreen('GAME');
+        };
+        resetBtn.setAttribute('aria-label', 'Reset the game');
+        screen.appendChild(resetBtn);
+
         // Add a back button to return to menu
         const backBtn = document.createElement('button');
         backBtn.textContent = 'Back to Menu';
         backBtn.className = 'menu-btn';
-        backBtn.style.marginTop = '32px';
+        backBtn.style.marginTop = '16px';
         backBtn.onclick = function() {
             clearInterval(timerInterval);
             clearInterval(hungerInterval);
