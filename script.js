@@ -24,7 +24,6 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     moneyStack.appendChild(moneyLabel);
     const moneyCounter = document.createElement('span');
     moneyCounter.className = 'counter-value';
-    // Use a span for the value so we can update it easily
     moneyCounter.innerHTML = `<span class="coin-icon"></span>x <span id="money-value">${money}</span>`;
     moneyStack.appendChild(moneyCounter);
 
@@ -45,7 +44,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hungerBarOuter.style.gap = '2px';
     hungerBarOuter.style.background = 'transparent';
     hungerBarOuter.style.border = '2px solid #fff';
-    hungerBarOuter.style.borderRadius = '0'; // Make it unrounded
+    hungerBarOuter.style.borderRadius = '0';
     hungerBarOuter.style.width = '70px';
     hungerBarOuter.style.height = '12px';
     hungerBarOuter.style.overflow = 'hidden';
@@ -79,23 +78,68 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     foodStack.appendChild(foodLabel);
     const foodCounter = document.createElement('div');
     foodCounter.className = 'counter-value';
-    // Use a span for the value so we can update it easily
     foodCounter.innerHTML = `<span class="food-icon"></span>x <span id="food-value">${food}</span>`;
     foodStack.appendChild(foodCounter);
+
+    // --- BUY FOOD BUTTON ---
+    const buyFoodBtn = document.createElement('button');
+    buyFoodBtn.textContent = 'BUY FOOD - $3';
+    buyFoodBtn.className = 'menu-btn';
+    buyFoodBtn.style.marginLeft = '8px';
+    buyFoodBtn.style.marginTop = '6px';
+    buyFoodBtn.style.fontSize = '0.8rem';
+    buyFoodBtn.onclick = function() {
+        // Get current money and food values
+        const moneyValue = document.getElementById('money-value');
+        const foodValue = document.getElementById('food-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        let foodNum = parseInt(foodValue.textContent, 10);
+        // Only buy if enough money
+        if (moneyNum >= 3) {
+            moneyNum -= 3;
+            foodNum += 1;
+            moneyValue.textContent = moneyNum;
+            foodValue.textContent = foodNum;
+        }
+    };
+    // Add the button below the food counter
+    foodStack.appendChild(buyFoodBtn);
 
     // Health (bottom right)
     const healthStack = document.createElement('div');
     healthStack.className = 'counter-stack';
-    // Change label from 'HEALTH' to 'MEDICINE'
     const healthLabel = document.createElement('span');
     healthLabel.textContent = 'MEDICINE';
     healthLabel.className = 'counter-label';
     healthStack.appendChild(healthLabel);
     const healthCounter = document.createElement('span');
     healthCounter.className = 'counter-value';
-    // Use a span for the value so we can update it easily
     healthCounter.innerHTML = `<span class="heart-icon">❤</span>x <span id="health-value">${health}</span>`;
     healthStack.appendChild(healthCounter);
+
+    // --- BUY MEDICINE BUTTON ---
+    const buyMedBtn = document.createElement('button');
+    buyMedBtn.textContent = 'BUY MEDICINE - $5';
+    buyMedBtn.className = 'menu-btn';
+    buyMedBtn.style.marginLeft = '8px';
+    buyMedBtn.style.marginTop = '6px';
+    buyMedBtn.style.fontSize = '0.8rem';
+    buyMedBtn.onclick = function() {
+        // Get current money and health values
+        const moneyValue = document.getElementById('money-value');
+        const healthValue = document.getElementById('health-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        let healthNum = parseInt(healthValue.textContent, 10);
+        // Only buy if enough money
+        if (moneyNum >= 5) {
+            moneyNum -= 5;
+            healthNum += 1;
+            moneyValue.textContent = moneyNum;
+            healthValue.textContent = healthNum;
+        }
+    };
+    // Add the button below the medicine counter
+    healthStack.appendChild(buyMedBtn);
 
     // Add stacks to grid
     countersGrid.appendChild(moneyStack);
@@ -575,9 +619,13 @@ function showScreen(message) {
 
         // Set jump powers for normal and much lower jumps
         let jumpPowerNormal = -15;
-        let jumpPowerLow = -10; // much lower jump
+        // let jumpPowerLow = -10; // much lower jump (no longer used)
 
-        // Listen for jump events and update hunger bar segments
+        // --- Remove code that changes jump power based on hunger ---
+        // The player's jump power will always stay the same now.
+        window.currentJumpPower = jumpPowerNormal;
+
+        // Listen for jump events and update hunger bar segments (visual only)
         document.addEventListener('keydown', function(e) {
             if (
                 (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW')
@@ -604,7 +652,7 @@ function showScreen(message) {
             }
         });
 
-        // --- Decrease hunger bar every 5 seconds ---
+        // --- Decrease hunger bar every 5 seconds (visual only) ---
         let hungerInterval = setInterval(() => {
             if (segmentsLeft > 0) {
                 segmentsLeft--;
@@ -618,9 +666,10 @@ function showScreen(message) {
             }
         }, 5000);
 
-        // Patch the game loop to update the player's onGround attribute and jump power
+        // --- Remove the patch that changes jump power based on hunger ---
+        // Only update the player's onGround attribute for visuals
         setTimeout(() => {
-            function patchPlayerOnGroundAndJumpPower() {
+            function patchPlayerOnGround() {
                 const player = document.getElementById('player');
                 if (player) {
                     // Patch onGround attribute
@@ -640,15 +689,9 @@ function showScreen(message) {
                     }
                     player.setAttribute('data-on-ground', onGroundNow ? 'true' : 'false');
                 }
-                // Set jump power based on hunger segments left
-                if (segmentsLeft <= 3) {
-                    window.currentJumpPower = jumpPowerLow;
-                } else {
-                    window.currentJumpPower = jumpPowerNormal;
-                }
-                requestAnimationFrame(patchPlayerOnGroundAndJumpPower);
+                requestAnimationFrame(patchPlayerOnGround);
             }
-            patchPlayerOnGroundAndJumpPower();
+            patchPlayerOnGround();
         }, 500);
 
         // Timer countdown
@@ -846,4 +889,5 @@ buttons.forEach(btn => {
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
