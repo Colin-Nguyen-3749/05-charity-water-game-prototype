@@ -590,7 +590,7 @@ function createGameArea() {
                     // If no medicine and not enough money, freeze game and show message
                     else {
                         if (msg) {
-                            msg.textContent = "Uh-oh, you're too sick! Try again?";
+                            msg.textContent = "Uh-oh, you got sick! Try again?";
                         }
                         // Stop the game loop by not calling requestAnimationFrame again
                         return;
@@ -752,10 +752,6 @@ function showScreen(message) {
 
         // Set jump powers for normal and much lower jumps
         let jumpPowerNormal = -15;
-        // let jumpPowerLow = -10; // much lower jump (no longer used)
-
-        // --- Remove code that changes jump power based on hunger ---
-        // The player's jump power will always stay the same now.
         window.currentJumpPower = jumpPowerNormal;
 
         // Listen for jump events and update hunger bar segments (visual only)
@@ -794,6 +790,52 @@ function showScreen(message) {
                         hungerSegments[i].style.background = '#fff';
                     } else {
                         hungerSegments[i].style.background = '#181818';
+                    }
+                }
+                // If hunger just reached 0, handle food/money logic
+                if (segmentsLeft === 0) {
+                    const msg = document.getElementById('message-bar');
+                    const foodValue = document.getElementById('food-value');
+                    const moneyValue = document.getElementById('money-value');
+                    let foodNum = parseInt(foodValue.textContent, 10);
+                    let moneyNum = parseInt(moneyValue.textContent, 10);
+
+                    // If player has food, eat food
+                    if (foodNum > 0) {
+                        foodNum -= 1;
+                        foodValue.textContent = foodNum;
+                        if (msg) {
+                            msg.textContent = "Uh-oh, you have to eat! -1 FOOD";
+                            setTimeout(() => { msg.textContent = ''; }, 2000);
+                        }
+                        // Optionally refill hunger bar after eating
+                        segmentsLeft = 10;
+                        for (let i = 0; i < 10; i++) {
+                            hungerSegments[i].style.background = '#fff';
+                        }
+                    }
+                    // If player has 3 or more coins, buy food automatically
+                    else if (moneyNum >= 3) {
+                        moneyNum -= 3;
+                        moneyValue.textContent = moneyNum;
+                        if (msg) {
+                            msg.textContent = "Uh-oh, you need food! -3 DOLLARS";
+                            setTimeout(() => { msg.textContent = ''; }, 2000);
+                        }
+                        // Optionally refill hunger bar after buying food
+                        segmentsLeft = 10;
+                        for (let i = 0; i < 10; i++) {
+                            hungerSegments[i].style.background = '#fff';
+                        }
+                    }
+                    // If no food and not enough money, freeze game and show message
+                    else {
+                        if (msg) {
+                            msg.textContent = "Uh-oh, you're too hungry! Try again?";
+                        }
+                        clearInterval(hungerInterval);
+                        // Optionally, you could also stop the timer here if you want
+                        // clearInterval(timerInterval);
                     }
                 }
             }
