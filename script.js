@@ -782,6 +782,7 @@ function showScreen(message) {
         });
 
         // --- Decrease hunger bar every 5 seconds (visual only) ---
+        let hungerFrozen = false; // Track if game should be frozen due to hunger
         let hungerInterval = setInterval(() => {
             if (segmentsLeft > 0) {
                 segmentsLeft--;
@@ -808,7 +809,7 @@ function showScreen(message) {
                             msg.textContent = "Uh-oh, you have to eat! -1 FOOD";
                             setTimeout(() => { msg.textContent = ''; }, 2000);
                         }
-                        // Optionally refill hunger bar after eating
+                        // Refill hunger bar after eating
                         segmentsLeft = 10;
                         for (let i = 0; i < 10; i++) {
                             hungerSegments[i].style.background = '#fff';
@@ -822,7 +823,7 @@ function showScreen(message) {
                             msg.textContent = "Uh-oh, you need food! -3 DOLLARS";
                             setTimeout(() => { msg.textContent = ''; }, 2000);
                         }
-                        // Optionally refill hunger bar after buying food
+                        // Refill hunger bar after buying food
                         segmentsLeft = 10;
                         for (let i = 0; i < 10; i++) {
                             hungerSegments[i].style.background = '#fff';
@@ -834,8 +835,7 @@ function showScreen(message) {
                             msg.textContent = "Uh-oh, you're too hungry! Try again?";
                         }
                         clearInterval(hungerInterval);
-                        // Optionally, you could also stop the timer here if you want
-                        // clearInterval(timerInterval);
+                        hungerFrozen = true; // Set flag to freeze game area
                     }
                 }
             }
