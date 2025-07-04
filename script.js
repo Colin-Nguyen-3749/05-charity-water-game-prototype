@@ -218,8 +218,89 @@ function createHUD(money, hunger, food, health, timerSeconds) {
         }
     };
 
+    // --- BUY EDUCATION BUTTON ---
+    const buyEduBtn = document.createElement('button');
+    buyEduBtn.textContent = 'BUY EDUCATION - $25';
+    buyEduBtn.className = 'menu-btn';
+    buyEduBtn.style.fontSize = '0.8rem';
+    buyEduBtn.style.padding = '4px 10px';
+    buyEduBtn.style.margin = '0';
+    buyEduBtn.style.width = 'auto';
+    buyEduBtn.style.height = 'auto';
+    buyEduBtn.style.minHeight = 'unset';
+    buyEduBtn.style.borderRadius = '6px';
+    buyEduBtn.style.background = '#222';
+    buyEduBtn.style.border = '1.5px solid #fff';
+    buyEduBtn.style.color = '#fff';
+    buyEduBtn.disabled = true; // Start disabled
+
+    // Add a flashing effect using a CSS class
+    buyEduBtn.classList.add('edu-disabled');
+
+    // Add the button to the buy bar
     buyBar.appendChild(buyFoodBtn);
     buyBar.appendChild(buyMedBtn);
+    buyBar.appendChild(buyEduBtn);
+
+    // --- Flashing effect for education button ---
+    // Add a style tag for the flashing effect if not already present
+    if (!document.getElementById('edu-flash-style')) {
+        const style = document.createElement('style');
+        style.id = 'edu-flash-style';
+        style.textContent = `
+        .edu-flash {
+            animation: edu-flash-anim 0.7s infinite alternate;
+            background: #FFC907 !important;
+            color: #111 !important;
+            border: 2px solid #FFC907 !important;
+        }
+        @keyframes edu-flash-anim {
+            0% { box-shadow: 0 0 8px 2px #FFC907; }
+            100% { box-shadow: 0 0 16px 4px #fff; }
+        }
+        .edu-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #444 !important;
+            color: #bbb !important;
+            border: 1.5px solid #888 !important;
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // --- Enable/disable and flash the education button based on money ---
+    function updateEduBtn() {
+        const moneyValue = document.getElementById('money-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        if (moneyNum >= 25) {
+            buyEduBtn.disabled = false;
+            buyEduBtn.classList.remove('edu-disabled');
+            buyEduBtn.classList.add('edu-flash');
+        } else {
+            buyEduBtn.disabled = true;
+            buyEduBtn.classList.remove('edu-flash');
+            buyEduBtn.classList.add('edu-disabled');
+        }
+    }
+
+    // Update the education button whenever money changes
+    setInterval(updateEduBtn, 300);
+
+    // --- Click event for education button ---
+    buyEduBtn.onclick = function() {
+        const moneyValue = document.getElementById('money-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        const msg = document.getElementById('message-bar');
+        if (moneyNum >= 25) {
+            moneyNum -= 25;
+            moneyValue.textContent = moneyNum;
+            if (msg) {
+                msg.textContent = 'Yay, you won!';
+            }
+            // Optionally, you could freeze the game or show a win screen here
+        }
+    };
 
     // --- Container for HUD, message, and buy bar ---
     const hudContainer = document.createElement('div');
