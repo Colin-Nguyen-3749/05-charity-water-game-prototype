@@ -428,3 +428,30 @@ body {
         height: 220px;
     }
 }
+
+/* Arcade-style flashing for the education button */
+.edu-flash {
+    animation: edu-arcade-flash 0.4s steps(2, jump-none) infinite;
+    background: #FFC907 !important;
+    color: #111 !important;
+    border: 2px solid #FFC907 !important;
+    box-shadow: 0 0 16px 4px #FFC907, 0 0 2px 1px #fff inset;
+    transition: background 0.1s, color 0.1s, box-shadow 0.1s;
+}
+@keyframes edu-arcade-flash {
+    0% {
+        background: #FFC907;
+        color: #111;
+        box-shadow: 0 0 16px 4px #FFC907, 0 0 2px 1px #fff inset;
+    }
+    50% {
+        background: #fffbe0;
+        color: #222;
+        box-shadow: 0 0 8px 2px #fffbe0, 0 0 2px 1px #FFC907 inset;
+    }
+    100% {
+        background: #FFC907;
+        color: #111;
+        box-shadow: 0 0 16px 4px #FFC907, 0 0 2px 1px #fff inset;
+    }
+}

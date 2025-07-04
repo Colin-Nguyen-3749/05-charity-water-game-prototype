@@ -6,7 +6,7 @@ const menu = document.getElementById('menu');
 const buttons = document.querySelectorAll('.menu-btn');
 
 // Function to create the game HUD (top info bar)
-function createHUD(money, hunger, food, health, timerSeconds) {
+function createHUD(money, food, health, timerSeconds) {
     const hud = document.createElement('div');
     hud.id = 'hud';
     hud.className = 'hud-grid';
@@ -167,21 +167,24 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     buyFoodBtn.style.border = '1.5px solid #fff';
     buyFoodBtn.style.color = '#fff';
     buyFoodBtn.onclick = function() {
+        // Always get the latest values from the DOM
         const moneyValue = document.getElementById('money-value');
         const foodValue = document.getElementById('food-value');
         let moneyNum = parseInt(moneyValue.textContent, 10);
         let foodNum = parseInt(foodValue.textContent, 10);
         if (moneyNum >= 3) {
-            moneyNum -= 3;
-            foodNum += 1;
+            // Subtract 3 from money and add 1 to food
+            moneyNum = moneyNum - 3;
+            foodNum = foodNum + 1;
+            // Update the DOM counters
             moneyValue.textContent = moneyNum;
             foodValue.textContent = foodNum;
-        }
-        // Show a message when food is bought
-        const msg = document.getElementById('message-bar');
-        if (moneyNum >= 3 && msg) {
-            msg.textContent = 'You bought food!';
-            setTimeout(() => { msg.textContent = ''; }, 1500);
+            // Show a message when food is bought
+            const msg = document.getElementById('message-bar');
+            if (msg) {
+                msg.textContent = 'You bought food!';
+                setTimeout(() => { msg.textContent = ''; }, 1500);
+            }
         }
     };
 
@@ -200,21 +203,24 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     buyMedBtn.style.border = '1.5px solid #fff';
     buyMedBtn.style.color = '#fff';
     buyMedBtn.onclick = function() {
+        // Always get the latest values from the DOM
         const moneyValue = document.getElementById('money-value');
         const healthValue = document.getElementById('health-value');
         let moneyNum = parseInt(moneyValue.textContent, 10);
         let healthNum = parseInt(healthValue.textContent, 10);
         if (moneyNum >= 5) {
-            moneyNum -= 5;
-            healthNum += 1;
+            // Subtract 5 from money and add 1 to health
+            moneyNum = moneyNum - 5;
+            healthNum = healthNum + 1;
+            // Update the DOM counters
             moneyValue.textContent = moneyNum;
             healthValue.textContent = healthNum;
-        }
-        // Show a message when medicine is bought
-        const msg = document.getElementById('message-bar');
-        if (moneyNum >= 5 && msg) {
-            msg.textContent = 'You bought medicine!';
-            setTimeout(() => { msg.textContent = ''; }, 1500);
+            // Show a message when medicine is bought
+            const msg = document.getElementById('message-bar');
+            if (msg) {
+                msg.textContent = 'You bought medicine!';
+                setTimeout(() => { msg.textContent = ''; }, 1500);
+            }
         }
     };
 
@@ -232,9 +238,7 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     buyEduBtn.style.background = '#222';
     buyEduBtn.style.border = '1.5px solid #fff';
     buyEduBtn.style.color = '#fff';
-    buyEduBtn.disabled = true; // Start disabled
-
-    // Add a flashing effect using a CSS class
+    buyEduBtn.disabled = true;
     buyEduBtn.classList.add('edu-disabled');
 
     // Add the button to the buy bar
@@ -283,22 +287,95 @@ function createHUD(money, hunger, food, health, timerSeconds) {
             buyEduBtn.classList.add('edu-disabled');
         }
     }
-
-    // Update the education button whenever money changes
     setInterval(updateEduBtn, 300);
+
+    // --- Pixelated confetti function ---
+    function showConfetti() {
+        // Create a container for confetti
+        let confettiContainer = document.getElementById('confetti-container');
+        if (!confettiContainer) {
+            confettiContainer = document.createElement('div');
+            confettiContainer.id = 'confetti-container';
+            confettiContainer.style.position = 'fixed';
+            confettiContainer.style.left = '0';
+            confettiContainer.style.top = '0';
+            confettiContainer.style.width = '100vw';
+            confettiContainer.style.height = '100vh';
+            confettiContainer.style.pointerEvents = 'none';
+            confettiContainer.style.zIndex = '9999';
+            document.body.appendChild(confettiContainer);
+        }
+
+        // Confetti colors (pixel style)
+        const colors = [
+            '#FFC907', // yellow
+            '#2E9DF7', // blue
+            '#4FCB53', // green
+            '#FF902A', // orange
+            '#F5402C', // red
+            '#fff',    // white
+            '#8BD1CB', // light blue
+            '#F16061'  // pink
+        ];
+
+        // Create 40 confetti pieces
+        for (let i = 0; i < 40; i++) {
+            const conf = document.createElement('div');
+            // Pixel size
+            const size = Math.floor(Math.random() * 10) + 8;
+            conf.style.position = 'absolute';
+            conf.style.width = `${size}px`;
+            conf.style.height = `${size}px`;
+            conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+            conf.style.left = `${Math.random() * 100}vw`;
+            conf.style.top = `-${size}px`;
+            conf.style.opacity = '0.95';
+            conf.style.borderRadius = '2px';
+            conf.style.boxShadow = '0 0 0 2px #222';
+            conf.style.transition = 'none';
+            conf.style.zIndex = '10000';
+
+            // Animate falling
+            const fallTime = 1200 + Math.random() * 1200;
+            const endLeft = Math.random() * 100;
+            conf.animate([
+                { transform: `translateY(0)`, left: conf.style.left },
+                { transform: `translateY(80vh)`, left: `${endLeft}vw` }
+            ], {
+                duration: fallTime,
+                easing: 'cubic-bezier(.5,1.5,.5,1)',
+                fill: 'forwards'
+            });
+
+            // Remove confetti after animation
+            setTimeout(() => {
+                if (conf.parentNode) conf.parentNode.removeChild(conf);
+            }, fallTime + 400);
+
+            confettiContainer.appendChild(conf);
+        }
+
+        // Remove the container after all confetti is gone
+        setTimeout(() => {
+            if (confettiContainer.parentNode) confettiContainer.parentNode.removeChild(confettiContainer);
+        }, 2200);
+    }
 
     // --- Click event for education button ---
     buyEduBtn.onclick = function() {
+        // Always get the latest value from the DOM
         const moneyValue = document.getElementById('money-value');
         let moneyNum = parseInt(moneyValue.textContent, 10);
         const msg = document.getElementById('message-bar');
         if (moneyNum >= 25) {
-            moneyNum -= 25;
+            // Subtract 25 from money
+            moneyNum = moneyNum - 25;
             moneyValue.textContent = moneyNum;
             if (msg) {
                 msg.textContent = 'Yay, you won!';
             }
-            // Optionally, you could freeze the game or show a win screen here
+            // Show pixelated confetti
+            showConfetti();
         }
     };
 
@@ -307,8 +384,6 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hudContainer.appendChild(hud);
     hudContainer.appendChild(messageBar);
     hudContainer.appendChild(buyBar);
-
-    // Attach hunger segments for use elsewhere
     hudContainer._hungerSegments = hungerSegments;
     return hudContainer;
 }
@@ -464,7 +539,7 @@ function createGameArea() {
     let gravity = 0.5;
     let moveSpeed = 4;
     let scrollY = 0;
-    let maxPlayerY = py;
+    // let maxPlayerY = py; // Removed unused variable
 
     // Keyboard controls
     let leftPressed = false;
@@ -545,13 +620,13 @@ function createGameArea() {
         leftBtn.addEventListener('touchend', e => { e.preventDefault(); leftPressed = false; });
         leftBtn.addEventListener('mousedown', e => { e.preventDefault(); leftPressed = true; });
         leftBtn.addEventListener('mouseup', e => { e.preventDefault(); leftPressed = false; });
-        leftBtn.addEventListener('mouseleave', e => { leftPressed = false; });
+        leftBtn.addEventListener('mouseleave', () => { leftPressed = false; });
 
         rightBtn.addEventListener('touchstart', e => { e.preventDefault(); rightPressed = true; });
         rightBtn.addEventListener('touchend', e => { e.preventDefault(); rightPressed = false; });
         rightBtn.addEventListener('mousedown', e => { e.preventDefault(); rightPressed = true; });
         rightBtn.addEventListener('mouseup', e => { e.preventDefault(); rightPressed = false; });
-        rightBtn.addEventListener('mouseleave', e => { rightPressed = false; });
+        rightBtn.addEventListener('mouseleave', () => { rightPressed = false; });
 
         jumpBtn.addEventListener('touchstart', e => { e.preventDefault(); if (onGround) jumpPressed = true; });
         jumpBtn.addEventListener('mousedown', e => { e.preventDefault(); if (onGround) jumpPressed = true; });
@@ -564,8 +639,8 @@ function createGameArea() {
 
     // Track the player's items
     let money = 0;
-    let food = 0;
-    let health = 0;
+    // let food = 0; // Removed unused variable
+    // let health = 0; // Removed unused variable
 
     // We need to get the money counter span from the HUD each time, because the HUD is created in showScreen
     // So we use document.getElementById to always get the current value span
@@ -812,14 +887,14 @@ function showScreen(message) {
 
         // Set all counters to zero at the start of the game
         let money = 0;
-        let food = 0;
+        let food = 0; // Start food at 0, not 100
         let health = 0;
         let hunger = 100; // Hunger bar starts full
 
         // Create the HUD with starting values
         const startTime = 180; // 3 minutes in seconds
         let timeLeft = startTime;
-        const hud = createHUD(money, hunger, food, health, timeLeft);
+        const hud = createHUD(money, food, health, timeLeft);
         screen.appendChild(hud);
 
         // Add the game area with platforms
@@ -863,7 +938,7 @@ function showScreen(message) {
         });
 
         // --- Decrease hunger bar every 5 seconds (visual only) ---
-        let hungerFrozen = false; // Track if game should be frozen due to hunger
+        // let hungerFrozen = false; // Removed unused variable
         let hungerInterval = setInterval(() => {
             if (segmentsLeft > 0) {
                 segmentsLeft--;
@@ -1140,6 +1215,12 @@ buttons.forEach(btn => {
         }
     });
 });
+
+// In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
+// In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
