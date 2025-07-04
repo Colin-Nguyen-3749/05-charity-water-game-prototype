@@ -76,34 +76,10 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     foodLabel.textContent = 'FOOD';
     foodLabel.className = 'counter-label';
     foodStack.appendChild(foodLabel);
-    const foodCounter = document.createElement('div');
+    const foodCounter = document.createElement('span');
     foodCounter.className = 'counter-value';
     foodCounter.innerHTML = `<span class="food-icon"></span>x <span id="food-value">${food}</span>`;
     foodStack.appendChild(foodCounter);
-
-    // --- BUY FOOD BUTTON ---
-    const buyFoodBtn = document.createElement('button');
-    buyFoodBtn.textContent = 'BUY FOOD - $3';
-    buyFoodBtn.className = 'menu-btn';
-    buyFoodBtn.style.marginLeft = '8px';
-    buyFoodBtn.style.marginTop = '6px';
-    buyFoodBtn.style.fontSize = '0.8rem';
-    buyFoodBtn.onclick = function() {
-        // Get current money and food values
-        const moneyValue = document.getElementById('money-value');
-        const foodValue = document.getElementById('food-value');
-        let moneyNum = parseInt(moneyValue.textContent, 10);
-        let foodNum = parseInt(foodValue.textContent, 10);
-        // Only buy if enough money
-        if (moneyNum >= 3) {
-            moneyNum -= 3;
-            foodNum += 1;
-            moneyValue.textContent = moneyNum;
-            foodValue.textContent = foodNum;
-        }
-    };
-    // Add the button below the food counter
-    foodStack.appendChild(buyFoodBtn);
 
     // Health (bottom right)
     const healthStack = document.createElement('div');
@@ -116,30 +92,6 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     healthCounter.className = 'counter-value';
     healthCounter.innerHTML = `<span class="heart-icon">❤</span>x <span id="health-value">${health}</span>`;
     healthStack.appendChild(healthCounter);
-
-    // --- BUY MEDICINE BUTTON ---
-    const buyMedBtn = document.createElement('button');
-    buyMedBtn.textContent = 'BUY MEDICINE - $5';
-    buyMedBtn.className = 'menu-btn';
-    buyMedBtn.style.marginLeft = '8px';
-    buyMedBtn.style.marginTop = '6px';
-    buyMedBtn.style.fontSize = '0.8rem';
-    buyMedBtn.onclick = function() {
-        // Get current money and health values
-        const moneyValue = document.getElementById('money-value');
-        const healthValue = document.getElementById('health-value');
-        let moneyNum = parseInt(moneyValue.textContent, 10);
-        let healthNum = parseInt(healthValue.textContent, 10);
-        // Only buy if enough money
-        if (moneyNum >= 5) {
-            moneyNum -= 5;
-            healthNum += 1;
-            moneyValue.textContent = moneyNum;
-            healthValue.textContent = healthNum;
-        }
-    };
-    // Add the button below the medicine counter
-    healthStack.appendChild(buyMedBtn);
 
     // Add stacks to grid
     countersGrid.appendChild(moneyStack);
@@ -165,7 +117,85 @@ function createHUD(money, hunger, food, health, timerSeconds) {
     hud.appendChild(timerSection);
 
     hud._hungerSegments = hungerSegments;
-    return hud;
+
+    // --- Buy bar below the HUD ---
+    const buyBar = document.createElement('div');
+    buyBar.style.display = 'flex';
+    buyBar.style.justifyContent = 'center';
+    buyBar.style.alignItems = 'center';
+    buyBar.style.gap = '18px';
+    buyBar.style.background = '#111'; // match HUD background
+    buyBar.style.border = '2px solid #fff'; // match HUD border thickness
+    buyBar.style.borderRadius = '0 0 12px 12px'; // match HUD border radius
+    buyBar.style.margin = '0 auto 8px auto';
+    buyBar.style.padding = '4px 0';
+    buyBar.style.width = '100%';
+    buyBar.style.maxWidth = '600px';
+
+    // --- BUY FOOD BUTTON ---
+    const buyFoodBtn = document.createElement('button');
+    buyFoodBtn.textContent = 'BUY FOOD - $3';
+    buyFoodBtn.className = 'menu-btn';
+    buyFoodBtn.style.fontSize = '0.8rem';
+    buyFoodBtn.style.padding = '4px 10px';
+    buyFoodBtn.style.margin = '0';
+    buyFoodBtn.style.width = 'auto';
+    buyFoodBtn.style.height = 'auto';
+    buyFoodBtn.style.minHeight = 'unset';
+    buyFoodBtn.style.borderRadius = '6px';
+    buyFoodBtn.style.background = '#222';
+    buyFoodBtn.style.border = '1px solid #fff';
+    buyFoodBtn.style.color = '#fff';
+    buyFoodBtn.onclick = function() {
+        const moneyValue = document.getElementById('money-value');
+        const foodValue = document.getElementById('food-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        let foodNum = parseInt(foodValue.textContent, 10);
+        if (moneyNum >= 3) {
+            moneyNum -= 3;
+            foodNum += 1;
+            moneyValue.textContent = moneyNum;
+            foodValue.textContent = foodNum;
+        }
+    };
+
+    // --- BUY MEDICINE BUTTON ---
+    const buyMedBtn = document.createElement('button');
+    buyMedBtn.textContent = 'BUY MEDICINE - $5';
+    buyMedBtn.className = 'menu-btn';
+    buyMedBtn.style.fontSize = '0.8rem';
+    buyMedBtn.style.padding = '4px 10px';
+    buyMedBtn.style.margin = '0';
+    buyMedBtn.style.width = 'auto';
+    buyMedBtn.style.height = 'auto';
+    buyMedBtn.style.minHeight = 'unset';
+    buyMedBtn.style.borderRadius = '6px';
+    buyMedBtn.style.background = '#222';
+    buyMedBtn.style.border = '1px solid #fff';
+    buyMedBtn.style.color = '#fff';
+    buyMedBtn.onclick = function() {
+        const moneyValue = document.getElementById('money-value');
+        const healthValue = document.getElementById('health-value');
+        let moneyNum = parseInt(moneyValue.textContent, 10);
+        let healthNum = parseInt(healthValue.textContent, 10);
+        if (moneyNum >= 5) {
+            moneyNum -= 5;
+            healthNum += 1;
+            moneyValue.textContent = moneyNum;
+            healthValue.textContent = healthNum;
+        }
+    };
+
+    buyBar.appendChild(buyFoodBtn);
+    buyBar.appendChild(buyMedBtn);
+
+    // Return both the HUD and the buy bar as a container
+    const hudContainer = document.createElement('div');
+    hudContainer.appendChild(hud);
+    hudContainer.appendChild(buyBar);
+
+    hudContainer._hungerSegments = hungerSegments;
+    return hudContainer;
 }
 
 // Helper to format seconds as MM:SS
@@ -889,5 +919,7 @@ buttons.forEach(btn => {
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // In your createGameArea's gameLoop, use window.currentJumpPower for jump height:
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
+// if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
 // if (jumpPressed && onGround) { vy = window.currentJumpPower; onGround = false; jumpPressed = false; }
